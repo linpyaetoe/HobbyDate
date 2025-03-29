@@ -1,0 +1,14 @@
+{
+  "name": "final-project-part-2-hello-world",
+  "version": "1.0.0",
+  "description": "Final project with API and frontend",
+  "scripts": {
+    "install": "cd api && npm install",
+    "dev:api": "cd api && npm run dev",
+    "setup": "node setup.js"
+  },
+  "private": true,
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
