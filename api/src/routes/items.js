@@ -10,10 +10,10 @@ router.get("/ping", (req, res) => {
   res.json({ message: "pong" });
 });
 
-// Get all items
-router.get("/items", async (req, res) => {
+// Get all events
+router.get("/events", async (req, res) => {
   try {
-    const items = await prisma.item.findMany({
+    const events = await prisma.item.findMany({
       include: {
         category: true,
         user: {
@@ -26,15 +26,15 @@ router.get("/items", async (req, res) => {
       }
     });
     
-    return res.json(items);
+    return res.json(events);
   } catch (error) {
-    console.error('Error fetching items:', error);
-    return res.status(500).json({ error: 'Failed to fetch items' });
+    console.error('Error fetching events:', error);
+    return res.status(500).json({ error: 'Failed to fetch events' });
   }
 });
 
-// Create item (authenticated)
-router.post("/items", requireAuth, async (req, res) => {
+// Create event (authenticated)
+router.post("/events", requireAuth, async (req, res) => {
   try {
     const { title, description, categoryId } = req.body;
     
@@ -51,8 +51,8 @@ router.post("/items", requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Category not found' });
     }
     
-    // Create the item
-    const newItem = await prisma.item.create({
+    // Create the event
+    const newEvent = await prisma.item.create({
       data: {
         title,
         description,
@@ -61,10 +61,10 @@ router.post("/items", requireAuth, async (req, res) => {
       }
     });
     
-    return res.status(201).json(newItem);
+    return res.status(201).json(newEvent);
   } catch (error) {
-    console.error('Error creating item:', error);
-    return res.status(500).json({ error: 'Failed to create item' });
+    console.error('Error creating event:', error);
+    return res.status(500).json({ error: 'Failed to create event' });
   }
 });
 
