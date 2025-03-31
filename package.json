@@ -5,7 +5,8 @@
   "scripts": {
     "install": "cd api && npm install",
     "dev:api": "cd api && npm run dev",
-    "setup": "node setup.js"
+    "setup": "node setup.js",
+    "backend": "nodemon api/src/index.js"
   },
   "private": true,
   "dependencies": {
