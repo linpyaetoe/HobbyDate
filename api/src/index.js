@@ -2,7 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import { PrismaClient } from "@prisma/client";
 import authRouter from "./routes/auth.js";
-import itemsRouter from "./routes/items.js";
+import eventsRouter from "./routes/events.js";
 import * as dotenv from "dotenv";
 
 // Load environment variables
@@ -17,7 +17,7 @@ app.use(cookieParser());
 
 // Routes
 app.use(authRouter);
-app.use(itemsRouter);
+app.use(eventsRouter);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

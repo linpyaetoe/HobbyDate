@@ -5,11 +5,11 @@ const prisma = new PrismaClient();
 async function main() {
   // Create categories
   const categories = [
-    { name: 'Electronics' },
-    { name: 'Books' },
-    { name: 'Clothing' },
-    { name: 'Furniture' },
-    { name: 'Sports' }
+    { name: 'Creative & Arts' },
+    { name: 'Games & Pop Culture' },
+    { name: 'Wellness & Movement' },
+    { name: 'Food & Lifestyle' },
+    { name: 'Curious Minds' }
   ];
 
   console.log('Seeding categories...');

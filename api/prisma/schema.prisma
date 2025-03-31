@@ -19,16 +19,16 @@ model User {
   username  String  @unique
   email     String  @unique
   password  String
-  items     Item[]
+  events     Event[]
 }
 
 model Category {
   id      Int     @id @default(autoincrement())
   name    String  @unique
-  items   Item[]
+  events   Event[]
 }
 
-model Item {
+model Event {
   id          Int       @id @default(autoincrement())
   title       String
   description String

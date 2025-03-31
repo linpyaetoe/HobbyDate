@@ -13,7 +13,7 @@ router.get("/ping", (req, res) => {
 // Get all events
 router.get("/events", async (req, res) => {
   try {
-    const events = await prisma.item.findMany({
+    const events = await prisma.event.findMany({
       include: {
         category: true,
         user: {
@@ -52,7 +52,7 @@ router.post("/events", requireAuth, async (req, res) => {
     }
     
     // Create the event
-    const newEvent = await prisma.item.create({
+    const newEvent = await prisma.event.create({
       data: {
         title,
         description,
