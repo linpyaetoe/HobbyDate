@@ -1,0 +1,22 @@
+{
+  "name": "final-project-part-2-hello-world",
+  "version": "1.0.0",
+  "description": "Final project with API and frontend",
+  "scripts": {
+    "install": "cd api && npm install",
+    "dev:api": "cd api && npm run dev",
+    "setup": "node setup.js",
+    "backend": "nodemon api/src/index.js"
+  },
+  "private": true,
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^3.3.2",
+    "prisma": "^6.5.0"
+  }
+}
