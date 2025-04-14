@@ -6,6 +6,7 @@ import CreateEvents from "./components/CreateEvents";
 import EventDetails from "./components/EventDetails";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import ProfileSetup from "./components/ProfileSetup";
 import Profile from "./components/Profile";
 import { AuthProvider } from "./security/AuthContext";
 import RequireAuth from "./security/RequireAuth";
@@ -25,6 +26,14 @@ export default function App() {
               element={
                 <RequireAuth>
                   <CreateEvents />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/profile-setup"
+              element={
+                <RequireAuth>
+                  <ProfileSetup />
                 </RequireAuth>
               }
             />

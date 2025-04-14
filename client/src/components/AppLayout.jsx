@@ -8,7 +8,7 @@ export default function AppLayout({ children }) {
   const navigate = useNavigate(); // 👈 add this
 
   // hides navbar on home, login & register pages
-  const hideNav = ["/", "/login", "/register"].includes(location.pathname);
+  const hideNav = ["/", "/login", "/register", "/profile-setup"].includes(location.pathname);
 
   // click logout --> navigates to home page
   const handleLogout = () => {

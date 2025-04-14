@@ -20,7 +20,7 @@ export default function Register() {
     try {
       const res = await api.post("/register", form);
       login(res.data.user);
-      navigate("/events");
+      navigate("/profile-setup");
     } catch (err) {
       if (err.response?.status === 409) {
         alert("This username or email already exists. Try logging in instead!");
