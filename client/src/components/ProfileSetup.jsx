@@ -90,6 +90,15 @@ export default function ProfileSetup() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log({ name, location, about, selectedHobbies, profilePic });
+
+  // make sure all fields are filled out
+  if (!name || !location || !about || selectedHobbies.length === 0 || !profilePic) {
+    alert("Please fill out all fields and upload a profile picture!");
+    return;
+  }
+
+  // show what's being submitted (just for debugging, can delete later)
+  console.log({ name, location, about, selectedHobbies, profilePic });
     navigate("/events");
   };
 
