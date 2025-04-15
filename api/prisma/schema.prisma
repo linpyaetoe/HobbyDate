@@ -15,11 +15,12 @@ datasource db {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  username  String  @unique
-  email     String  @unique
-  password  String
-  events     Event[]
+  id            Int     @id @default(autoincrement())
+  username      String  @unique
+  email         String  @unique
+  password      String
+  location      String?
+  events        Event[]
 }
 
 model Category {

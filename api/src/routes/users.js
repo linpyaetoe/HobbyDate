@@ -5,41 +5,49 @@ import { requireAuth } from '../middleware/auth.js';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Update user profile
+// Route at /profile (will be accessible at /users/profile when mounted with prefix)
 router.put('/profile', requireAuth, async (req, res) => {
   try {
+    console.log('Profile update - Request body:', req.body);
+    console.log('Profile update - Auth user:', req.user);
+    
     const { name, location, about, hobbies } = req.body;
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
-    // Update user profile with location only (since that's what's in our schema)
+    console.log('Profile update - Extracted data:', { userId, name, location, about, hobbies: Array.isArray(hobbies) ? `Array with ${hobbies.length} items` : typeof hobbies });
+
+    // Update user profile
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
         username: name,
         location: location
-        // We'll store about and hobbies elsewhere or add them to schema later
       }
     });
 
-    // Store the additional profile information in the user session or a cookie
-    // This is a workaround until we add these fields to the schema
-    req.session = req.session || {};
-    req.session.profileData = {
-      about,
-      hobbies: JSON.stringify(hobbies)
-    };
+    console.log('User updated successfully:', updatedUser);
 
     // Remove sensitive data before sending response
     const { password, ...userWithoutPassword } = updatedUser;
-    res.json({
+    
+    // Return all the data including the non-stored fields
+    const responseData = {
       ...userWithoutPassword,
       about,
-      hobbies
-    });
+      hobbies: Array.isArray(hobbies) ? hobbies : []
+    };
+    
+    console.log('Sending response:', responseData);
+    res.json(responseData);
   } catch (error) {
     console.error('Profile update error:', error);
-    res.status(500).json({ error: 'Failed to update profile' });
+    res.status(500).json({ error: 'Failed to update profile: ' + error.message });
   }
+});
+
+// Add a test route
+router.get('/test', (req, res) => {
+  res.json({ message: 'Users router is working!' });
 });
 
 export default router; 
