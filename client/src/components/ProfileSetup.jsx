@@ -86,20 +86,44 @@ export default function ProfileSetup() {
   };
 
   // handle form submission
-  // @linpyaetoe hook this up to backend to save user profile, pls & ty
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ name, location, about, selectedHobbies, profilePic });
 
-  // make sure all fields are filled out
-  if (!name || !location || !about || selectedHobbies.length === 0 || !profilePic) {
-    alert("Please fill out all fields and upload a profile picture!");
-    return;
-  }
+    // make sure all fields are filled out
+    if (!name || !location || !about || selectedHobbies.length === 0 || !profilePic) {
+      alert("Please fill out all fields and upload a profile picture!");
+      return;
+    }
 
-  // show what's being submitted (just for debugging, can delete later)
-  console.log({ name, location, about, selectedHobbies, profilePic });
-    navigate("/events");
+    try {
+      // Send profile data to backend
+      const response = await fetch('http://localhost:4000/users/profile', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          location,
+          about,
+          hobbies: selectedHobbies
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save profile');
+      }
+
+      const updatedUser = await response.json();
+      console.log('Profile saved successfully:', updatedUser);
+
+      // Navigate to events page on success
+      navigate("/events");
+    } catch (error) {
+      console.error('Profile save error:', error);
+      alert('Failed to save profile. Please try again.');
+    }
   };
 
   return (
