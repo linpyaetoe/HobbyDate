@@ -75,7 +75,8 @@ export default function EventDetails() {
 
   if (!event) return <p style={{ textAlign: "center", marginTop: "60px" }}>Loading event...</p>;
 
-  // Check if user is the creator of the event (correctly comparing user ID)
+  // Check if user is the creator of the event
+  // The userId field in the event object needs to be compared with the id from the user object
   const isCreator = user && parseInt(user.id) === event.userId;
 
   return (
