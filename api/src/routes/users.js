@@ -19,6 +19,8 @@ router.get('/profile', requireAuth, async (req, res) => {
         username: true,
         email: true,
         location: true,
+        about: true,
+        hobbies: true
         // Do not include password
       }
     });
@@ -27,11 +29,12 @@ router.get('/profile', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Note: In a production app, you would store 'about' and 'hobbies' in the database
-    // For now, we're returning the database fields only
-    // The frontend can populate any previously saved 'about' and 'hobbies' from its state
-    console.log('Sending user profile:', user);
-    res.json(user);
+    const parsedUser = {
+      ...user,
+      hobbies: user.hobbies ? JSON.parse(user.hobbies) : []
+    };
+    
+    res.json(parsedUser);
   } catch (error) {
     console.error('Profile retrieval error:', error);
     res.status(500).json({ error: 'Failed to retrieve profile: ' + error.message });
@@ -42,7 +45,11 @@ router.get('/profile', requireAuth, async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const userId = parseInt(req.params.id);
-    console.log('Retrieving profile for user ID:', userId);
+
+    // Handle invalid or missing ID
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
 
     // Get user from database
     const user = await prisma.user.findUnique({
@@ -59,8 +66,8 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    console.log('Sending public user profile:', user);
-    res.json(user);
+    console.log('Sending public user profile:', parsedUser);
+    res.json(parsedUser);
   } catch (error) {
     console.error('Public profile retrieval error:', error);
     res.status(500).json({ error: 'Failed to retrieve profile: ' + error.message });
@@ -83,7 +90,10 @@ router.put('/profile', requireAuth, async (req, res) => {
       where: { id: userId },
       data: {
         username: name,
-        location: location
+        location: location,
+        location,
+        about,
+        hobbies: Array.isArray(hobbies) ? JSON.stringify(hobbies) : hobbies
       }
     });
 

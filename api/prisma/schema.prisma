@@ -20,6 +20,8 @@ model User {
   email         String  @unique
   password      String
   location      String?
+  about         String?
+  hobbies       String?
   events        Event[]
 }
 
