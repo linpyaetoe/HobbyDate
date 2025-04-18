@@ -5,6 +5,68 @@ import { requireAuth } from '../middleware/auth.js';
 const router = express.Router();
 const prisma = new PrismaClient();
 
+// Get router - GET current user's profile (accessible at /users/profile)
+router.get('/profile', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    console.log('Profile retrieval - User ID:', userId);
+
+    // Get user from database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        location: true,
+        // Do not include password
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Note: In a production app, you would store 'about' and 'hobbies' in the database
+    // For now, we're returning the database fields only
+    // The frontend can populate any previously saved 'about' and 'hobbies' from its state
+    console.log('Sending user profile:', user);
+    res.json(user);
+  } catch (error) {
+    console.error('Profile retrieval error:', error);
+    res.status(500).json({ error: 'Failed to retrieve profile: ' + error.message });
+  }
+});
+
+// GET profile by user ID (accessible at /users/:id) - for public profiles
+router.get('/:id', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    console.log('Retrieving profile for user ID:', userId);
+
+    // Get user from database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        location: true,
+        // Don't include email and password for privacy
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    console.log('Sending public user profile:', user);
+    res.json(user);
+  } catch (error) {
+    console.error('Public profile retrieval error:', error);
+    res.status(500).json({ error: 'Failed to retrieve profile: ' + error.message });
+  }
+});
+
 // Route at /profile (will be accessible at /users/profile when mounted with prefix)
 router.put('/profile', requireAuth, async (req, res) => {
   try {
