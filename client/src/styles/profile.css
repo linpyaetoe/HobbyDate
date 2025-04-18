@@ -69,61 +69,6 @@ body, input, button, textarea {
   min-height: 100px;
 }
 
-/* profile pic upload */
-.picture-upload-wrapper {
-  width: 100%;
-}
-
-.profile-upload-label {
-  font-weight: 600;
-  font-size: 1.2rem;
-  color: #6f4c18;
-  margin-bottom: 5px;
-  display: block;
-}
-
-.profile-upload-input {
-  display: none;
-}
-
-.custom-upload-button {
-  display: inline-block;
-  background-color: white;
-  color: #f08a24;
-  padding: 10px 20px;
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.custom-upload-button:hover {
-  background-color: #ffe6cc;
-}
-
-.file-name {
-  font-size: 0.95rem;
-  color: #6f4c18;
-  margin-top: 8px;
-  word-break: break-word;
-}
-
-.picture-input {
-  display: none;
-}
-
-.picture-preview {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin: 12px auto;
-  display: block;
-  border: 2px solid white;
-}
-
 /* hobbies */
 .hobby-container {
   position: relative;

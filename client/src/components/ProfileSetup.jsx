@@ -31,8 +31,6 @@ export default function ProfileSetup() {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [about, setAbout] = useState("");
-  const [profilePic, setProfilePic] = useState(null);
-  const [preview, setPreview] = useState(null);
 
   const [hobbyInput, setHobbyInput] = useState("");
   const [selectedHobbies, setSelectedHobbies] = useState([]);
@@ -76,22 +74,13 @@ export default function ProfileSetup() {
     );
   };
 
-  // handles profile pic upload & preview
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfilePic(file);
-      setPreview(URL.createObjectURL(file));
-    }
-  };
-
   // handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // make sure all fields are filled out
-    if (!name || !location || !about || selectedHobbies.length === 0 || !profilePic) {
-      alert("Please fill out all fields and upload a profile picture!");
+    if (!name || !location || !about || selectedHobbies.length === 0) {
+      alert("Please fill out all fields!");
       return;
     }
 
@@ -140,34 +129,6 @@ export default function ProfileSetup() {
             onChange={(e) => setName(e.target.value)}
             className="profile-input"
           />
-
-          <div className="profile-upload-wrapper">
-            <label className="profile-upload-label" htmlFor="profile-pic">
-              Upload profile picture
-            </label>
-
-            <input
-              type="file"
-              id="profile-pic"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="profile-upload-input"
-            />
-
-            <label htmlFor="profile-pic" className="custom-upload-button">
-              Choose file
-            </label>
-
-            {profilePic && <p className="file-name">{profilePic.name}</p>}
-          </div>
-
-          {preview && (
-            <img
-              src={preview}
-              alt="profile preview"
-              className="profile-preview"
-            />
-          )}
 
           <input
             type="text"
