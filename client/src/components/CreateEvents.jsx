@@ -18,9 +18,15 @@ export default function CreateEvents() {
 
   // get preset categories
   useEffect(() => {
-    api.get("/categories").then((res) => {
-      setCategories(res.data);
-    });
+    console.log("Fetching categories...");
+    api.get("/categories")
+      .then((res) => {
+        console.log("Categories response:", res.data);
+        setCategories(res.data);
+      })
+      .catch(err => {
+        console.error("Error fetching categories:", err);
+      });
   }, []);
 
     // updates form field
@@ -59,7 +65,7 @@ export default function CreateEvents() {
 
     // check 2: end time must be after start time
     if (end <= start) {
-      alert("Your event can’t end before it begins!");
+      alert("Your event can't end before it begins!");
       return;
     }
 
@@ -124,11 +130,15 @@ export default function CreateEvents() {
               onChange={handleChange}
             >
               <option value="">Select a category</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
+              {categories && categories.length > 0 ? (
+                categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>Loading categories...</option>
+              )}
             </select>
           </div>
           
@@ -140,7 +150,7 @@ export default function CreateEvents() {
               name="location"
               value={form.location}
               onChange={handleChange}
-              placeholder="Where’s the magic happening?"
+              placeholder="Where's the magic happening?"
             />
           </div>
           
