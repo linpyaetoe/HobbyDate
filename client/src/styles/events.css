@@ -121,8 +121,8 @@ body, input, button, textarea, select {
   background: rgba(255, 255, 255, 0.25);
   border-radius: 16px;
   padding: 30px 40px 40px 40px;
-  width: fit-content;
-  max-width: 1000px;
+  width: 100%;
+  max-width: 800px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   color: #000;
   display: block; 
@@ -132,7 +132,6 @@ body, input, button, textarea, select {
 /* column layout */
 .event-grid {
   display: grid;
-  gap: 40px;
   grid-template-columns: 1fr 1fr;
   align-items: start;
 }
@@ -143,6 +142,8 @@ body, input, button, textarea, select {
   font-weight: 700;
   margin-top: 0px;
   margin-bottom: 10px;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .event-subtitle {
