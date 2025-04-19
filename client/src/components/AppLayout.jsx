@@ -1,16 +1,17 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../security/AuthContext";
+import { Calendar, PlusSquare, User, LogOut } from "lucide-react"; 
+import "../styles/layout.css"; // ⬅️ import the layout styles
 
 export default function AppLayout({ children }) {
   const { user, logout } = useContext(AuthContext);
   const location = useLocation();
-  const navigate = useNavigate(); // 👈 add this
+  const navigate = useNavigate();
 
   // hides navbar on home, login & register pages
   const hideNav = ["/", "/login", "/register", "/profile-setup"].includes(location.pathname);
 
-  // click logout --> navigates to home page
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -19,41 +20,38 @@ export default function AppLayout({ children }) {
   return (
     <div>
       {!hideNav && (
-        <nav
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "30px",
-            padding: "20px",
-            borderBottom: "1px solid #ccc",
-          }}
-        >
-          <Link to="/events">Events</Link>
+        <nav className="navbar">
+          <Link to="/events" className="button">
+            <Calendar size={25} style={{ marginRight: 8 }} />
+            All events
+          </Link>
+
           {user ? (
             <>
-              <Link to="/create">Create</Link>
-              <Link to="/profile">Profile</Link>
-              <button
-                onClick={handleLogout}
-                style={{
-                  border: "none",
-                  background: "none",
-                  cursor: "pointer",
-                  fontSize: "1em",
-                }}
-              >
-                Logout
+              <Link to="/create" className="button">
+                <PlusSquare size={25} style={{ marginRight: 10 }} />
+                Create event
+              </Link>
+
+              <Link to="/profile" className="button">
+                <User size={25} style={{ marginRight: 10 }} />
+                Profile
+              </Link>
+
+              <button onClick={handleLogout} className="button">
+                <LogOut size={25} style={{ marginRight: 10 }} />
+                Log out
               </button>
             </>
           ) : (
             <>
-              <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
+              <Link to="/login" className="nav-button">Login</Link>
+              <Link to="/register" className="nav-button">Register</Link>
             </>
           )}
         </nav>
       )}
+
       <main>{children}</main>
     </div>
   );
