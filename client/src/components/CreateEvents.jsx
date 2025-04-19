@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../security/fetchWithAuth";
+import "../styles/events.css";
 
 export default function CreateEvents() {
-  const [form, setForm] = useState({ title: "", description: "", categoryId: "" });
+  const [form, setForm] = useState({
+    title: "",
+    categoryId: "",
+    location: "",
+    startTime: "",
+    endTime: "",
+    description: ""
+  });
+
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
 
@@ -14,16 +23,59 @@ export default function CreateEvents() {
     });
   }, []);
 
+    // updates form field
+    const handleChange = (e) => {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
   // click create event --> navigates to events page
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { title, categoryId, location, startTime, endTime, description } = form;
 
     // checks for empty fields
-    if (!form.title || !form.description || !form.categoryId) {
+    if (
+      !title.trim() ||
+      !categoryId ||
+      !location.trim() ||
+      !startTime ||
+      !endTime ||
+      !description.trim()
+    ) {
       alert("All fields must be filled out!");
       return;
     }
 
+    // convert to Date objects
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const now = new Date();
+
+    // check 1: both start & end times must be in the future
+    if (start <= now || end <= now) {
+      alert("Events cannot happen in the past!");
+      return;
+    }
+
+    // check 2: end time must be after start time
+    if (end <= start) {
+      alert("Your event can’t end before it begins!");
+      return;
+    }
+
+    // check 3: title length
+    if (title.length > 60) {
+      alert("Your title is a bit too long — try keeping it under 60 characters!");
+      return;
+    }
+
+    // check 4: description length
+    if (description.length > 1000) {
+      alert("Your title is a bit too long — try keeping it under 1000 characters!");
+      return;
+    }
+
+    // create event in backend
     try {
       await api.post("/events", form);
       alert("Event created!");
@@ -45,108 +97,93 @@ export default function CreateEvents() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        padding: "60px 20px",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "#f9f9f9",
-          border: "1px solid #ccc",
-          borderRadius: "12px",
-          padding: "40px",
-          maxWidth: "700px",
-          width: "100%",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-          textAlign: "center",
-        }}
-      >
-        <h2 style={{ marginBottom: "30px" }}>Create a New Event</h2>
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-            alignItems: "center",
-          }}
-        >
-          <input
-            placeholder="Title"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            style={{
-              padding: "12px",
-              width: "80%",
-              maxWidth: "400px",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              fontSize: "16px",
-            }}
-          />
-          <textarea
-            placeholder="Description"
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            rows={4}
-            style={{
-              padding: "12px",
-              width: "80%",
-              maxWidth: "400px",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              fontSize: "16px",
-              resize: "vertical",
-            }}
-          />
-          <select
-            value={form.categoryId}
-            onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-            style={{
-              padding: "12px",
-              width: "80%",
-              maxWidth: "400px",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              fontSize: "16px",
-            }}
-          >
-            <option value="">Select category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-            <button
-              type="submit"
-              style={{
-                padding: "12px 24px",
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                fontSize: "16px",
-                cursor: "pointer",
-              }}
+    <div className="events-page-wrapper">
+      <div className="events-card">
+        <h1 className="events-title">Host your own event</h1>
+        <form className="events-form" onSubmit={handleSubmit}>
+          
+          {/* title section */}
+          <div className="form-group">
+            <label className="form-label">Title</label>
+            <input
+              className="form-input"
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              placeholder="Give it a catchy title"
+            />
+          </div>
+
+          {/* category section */}
+          <div className="form-group">
+            <label className="form-label">Category</label>
+            <select
+              className="form-select"
+              name="categoryId"
+              value={form.categoryId}
+              onChange={handleChange}
             >
-              Create Event
-            </button>
-            <button
-              type="button"
-              onClick={handleCancel}
-              style={{
-                padding: "12px 24px",
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                fontSize: "16px",
-                cursor: "pointer",
-              }}
-            >
-              Cancel
-            </button>
+              <option value="">Select a category</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          {/* location section */}
+          <div className="form-group">
+            <label className="form-label">Location</label>
+            <input
+              className="form-input"
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              placeholder="Where’s the magic happening?"
+            />
+          </div>
+          
+          {/* start time section */}
+          <div className="form-group">
+            <label className="form-label">Start time</label>
+            <input
+              className="form-input"
+              type="datetime-local"
+              name="startTime"
+              value={form.startTime}
+              onChange={handleChange}
+            />
+          </div>
+          
+          {/* end time section */}
+          <div className="form-group">
+            <label className="form-label">End time</label>
+            <input
+              className="form-input"
+              type="datetime-local"
+              name="endTime"
+              value={form.endTime}
+              onChange={handleChange}
+            />
+          </div>
+              
+          {/* description section */}
+          <div className="form-group">
+            <label className="form-label">Description</label>
+            <textarea
+              className="form-textarea"
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              placeholder="The what, why and wow. Hype it up!"
+            />
+          </div>
+          
+          {/* buttons section */}
+          <div className="events-button-group">
+            <button className="events-button create" type="submit">Create</button>
+            <button className="events-button cancel" type="button" onClick={handleCancel}>Cancel</button>
           </div>
         </form>
       </div>
