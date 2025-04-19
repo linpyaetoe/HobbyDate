@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import api from "../security/fetchWithAuth";
 import "../styles/global.css";
 
 // list of hobbies for dropdown
@@ -42,11 +43,11 @@ export default function Profile() {
 
   const suggestionsRef = useRef(null);
 
-  // featch user profile
+  // fetch user profile
   useEffect(() => {
-    fetch("/users/profile", { credentials: "include" })
-      .then(res => res.json())
-      .then(data => {
+    api.get("/users/profile")
+      .then((res) => {
+        const data = res.data;
         setUser(data);
         setLocation(data.location || "");
         setAbout(data.about || "");
@@ -68,6 +69,8 @@ export default function Profile() {
 
   // save edited field
   const handleSaveField = async (field) => {
+    if (!user) return;
+
     const updated = {
       name: user.username,
       location,
@@ -76,13 +79,8 @@ export default function Profile() {
     };
 
     try {
-      const res = await fetch("/users/profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(updated),
-      });
-      const data = await res.json();
+      const res = await api.put("/users/profile", updated);
+      const data = res.data;
       setUser(data);
 
       if (field === "location") setIsEditingLocation(false);
@@ -140,7 +138,9 @@ export default function Profile() {
               onChange={(e) => setLocation(e.target.value)}
             />
           ) : (
-            <p className="card-content">{" 📍 " + location || "Somewhere out there..."}</p>
+            <p className="card-content">
+              {location ? "📍 " + location : "📍 Somewhere out there..."}
+            </p>
           )}
         </div>
 

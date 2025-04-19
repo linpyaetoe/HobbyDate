@@ -66,8 +66,8 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    console.log('Sending public user profile:', parsedUser);
-    res.json(parsedUser);
+    console.log('Sending public user profile:', user);
+    res.json(user);
   } catch (error) {
     console.error('Public profile retrieval error:', error);
     res.status(500).json({ error: 'Failed to retrieve profile: ' + error.message });

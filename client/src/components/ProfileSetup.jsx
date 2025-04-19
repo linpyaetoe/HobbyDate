@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../security/fetchWithAuth";
 import "../styles/profile.css";
 
 // list of hobbies for dropdown
@@ -85,33 +86,19 @@ export default function ProfileSetup() {
     }
 
     try {
-      // Send profile data to backend
-      const response = await fetch('http://localhost:4000/users/profile', {
-        method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          location,
-          about,
-          hobbies: selectedHobbies
-        })
+      // send profile data to backend
+      const res = await api.put("/users/profile", {
+        name,
+        location,
+        about,
+        hobbies: selectedHobbies,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to save profile');
-      }
-
-      const updatedUser = await response.json();
-      console.log('Profile saved successfully:', updatedUser);
-
-      // Navigate to events page on success
+      const updatedUser = res.data;
+      console.log("profile saved successfully:", updatedUser);   // DEBUG ONLY, DELETE LATER
       navigate("/events");
     } catch (error) {
-      console.error('Profile save error:', error);
-      alert('Failed to save profile. Please try again.');
+      console.error("Profile save error:", error);
+      alert("Failed to save profile. Please try again.");
     }
   };
 
