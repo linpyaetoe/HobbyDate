@@ -90,7 +90,7 @@ router.get("/categories", async (req, res) => {
 router.post('/:id/rsvp', requireAuth, async (req, res) => {
   try {
     const eventId = parseInt(req.params.id);
-    const userId = req.user.id;
+    const userId = req.user.userId;
     
     console.log(`RSVP request received: User ${userId} for Event ${eventId}`);
 
@@ -110,67 +110,40 @@ router.post('/:id/rsvp', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'You cannot RSVP to your own event' });
     }
 
-    try {
-      // First, check if the table exists and create if it doesn't
-      try {
-        await prisma.$executeRaw`SELECT 1 FROM eventRsvps LIMIT 1`;
-        console.log('eventRsvps table exists');
-      } catch (tableError) {
-        if (tableError.message && tableError.message.includes('no such table')) {
-          console.log('Creating eventRsvps table');
-          await prisma.$executeRaw`
-            CREATE TABLE eventRsvps (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              userId INTEGER NOT NULL,
-              eventId INTEGER NOT NULL,
-              UNIQUE(userId, eventId)
-            )
-          `;
-          console.log('eventRsvps table created successfully');
-        } else {
-          throw tableError;
-        }
+    // Check if the user already has an RSVP for this event
+    const existingRsvp = await prisma.eventRsvp.findFirst({
+      where: {
+        userId: userId,
+        eventId: eventId
       }
-
-      // Now check if the user already has an RSVP for this event
-      const existingRsvps = await prisma.$queryRaw`
-        SELECT * FROM eventRsvps WHERE userId = ${userId} AND eventId = ${eventId}
-      `;
+    });
+    
+    if (existingRsvp) {
+      console.log(`User ${userId} already RSVP'd to event ${eventId}`);
+      return res.json({ 
+        message: 'RSVP already exists', 
+        id: existingRsvp.id,
+        userId,
+        eventId 
+      });
+    } else {
+      // Create a new RSVP
+      console.log(`Creating new RSVP for user ${userId} to event ${eventId}`);
       
-      console.log('Existing RSVPs:', existingRsvps);
-
-      if (existingRsvps && existingRsvps.length > 0) {
-        console.log(`User ${userId} already RSVP'd to event ${eventId}, updating`);
-        // RSVP exists, but we're using POST so we'll just keep it
-        return res.json({ 
-          message: 'RSVP already exists', 
-          id: existingRsvps[0].id,
-          userId,
-          eventId 
-        });
-      } else {
-        // Create a new RSVP
-        console.log(`Creating new RSVP for user ${userId} to event ${eventId}`);
-        await prisma.$executeRaw`
-          INSERT INTO eventRsvps (userId, eventId) VALUES (${userId}, ${eventId})
-        `;
-        
-        // Get the ID of the inserted RSVP
-        const newRsvp = await prisma.$queryRaw`
-          SELECT * FROM eventRsvps WHERE userId = ${userId} AND eventId = ${eventId}
-        `;
-        
-        console.log('New RSVP created:', newRsvp[0]);
-        return res.json({
-          message: 'RSVP created',
-          id: newRsvp[0].id,
-          userId,
-          eventId
-        });
-      }
-    } catch (error) {
-      console.error('RSVP database error:', error);
-      throw error;
+      const newRsvp = await prisma.eventRsvp.create({
+        data: {
+          userId: userId,
+          eventId: eventId
+        }
+      });
+      
+      console.log('New RSVP created:', newRsvp);
+      return res.json({
+        message: 'RSVP created',
+        id: newRsvp.id,
+        userId,
+        eventId
+      });
     }
   } catch (error) {
     console.error('RSVP error:', error);
@@ -182,26 +155,24 @@ router.post('/:id/rsvp', requireAuth, async (req, res) => {
 router.get('/:id/rsvp', requireAuth, async (req, res) => {
   try {
     const eventId = parseInt(req.params.id);
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
-    try {
-      // Try to find if the user is already RSVP'd to this event
-      const existingRsvp = await prisma.$queryRaw`
-        SELECT * FROM eventRsvps WHERE userId = ${userId} AND eventId = ${eventId}
-      `;
-      
-      return res.json({ isRsvpd: existingRsvp.length > 0 });
-    } catch (error) {
-      // Table doesn't exist yet, so no RSVPs
-      if (error.message && error.message.includes('no such table')) {
-        return res.json({ isRsvpd: false });
-      } else {
-        throw error;
+    console.log(`Checking RSVP status for User ${userId} on Event ${eventId}`);
+
+    // Find if the user is already RSVP'd to this event
+    const existingRsvp = await prisma.eventRsvp.findFirst({
+      where: {
+        userId: userId,
+        eventId: eventId
       }
-    }
+    });
+    
+    const isRsvpd = !!existingRsvp;
+    console.log(`RSVP status for User ${userId} on Event ${eventId}: ${isRsvpd ? 'RSVP exists' : 'No RSVP'}`);
+    return res.json({ isRsvpd });
   } catch (error) {
     console.error('Check RSVP error:', error);
-    res.status(500).json({ error: 'Failed to check RSVP status' });
+    res.status(500).json({ error: 'Failed to check RSVP status: ' + error.message });
   }
 });
 
@@ -267,27 +238,30 @@ router.get('/:id/rsvps', async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
-    try {
-      // Join with users table to get usernames
-      const rsvps = await prisma.$queryRaw`
-        SELECT er.id, er.userId, u.username 
-        FROM eventRsvps er
-        JOIN User u ON er.userId = u.id
-        WHERE er.eventId = ${eventId}
-      `;
-      
-      console.log(`Found ${rsvps.length} RSVPs for event ${eventId}`, rsvps);
-      return res.json(rsvps);
-    } catch (error) {
-      // Table doesn't exist yet, so no RSVPs
-      if (error.message && error.message.includes('no such table')) {
-        console.log(`No eventRsvps table exists yet, returning empty array for event ${eventId}`);
-        return res.json([]);
-      } else {
-        console.error(`Database error when fetching RSVPs for event ${eventId}:`, error);
-        throw error;
+    // Get RSVPs with user details
+    const rsvps = await prisma.eventRsvp.findMany({
+      where: {
+        eventId: eventId
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
-    }
+    });
+    
+    // Format the response
+    const formattedRsvps = rsvps.map(rsvp => ({
+      id: rsvp.id,
+      userId: rsvp.userId,
+      username: rsvp.user.username
+    }));
+    
+    console.log(`Found ${formattedRsvps.length} RSVPs for event ${eventId}`);
+    return res.json(formattedRsvps);
   } catch (error) {
     console.error('Get RSVPs error:', error);
     res.status(500).json({ error: 'Failed to get RSVPs: ' + error.message });
