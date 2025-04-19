@@ -4,6 +4,7 @@ import Home from "./components/Home";
 import Events from "./components/Events";
 import CreateEvents from "./components/CreateEvents";
 import EventDetails from "./components/EventDetails";
+import EditEvent from "./components/EditEvent";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import ProfileSetup from "./components/ProfileSetup";
@@ -26,6 +27,14 @@ export default function App() {
               element={
                 <RequireAuth>
                   <CreateEvents />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/events/:id/edit"
+              element={
+                <RequireAuth>
+                  <EditEvent />
                 </RequireAuth>
               }
             />

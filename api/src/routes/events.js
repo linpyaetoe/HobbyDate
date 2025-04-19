@@ -268,4 +268,109 @@ router.get('/:id/rsvps', async (req, res) => {
   }
 });
 
+// Update an event (creator only)
+router.put("/events/:id", requireAuth, async (req, res) => {
+  try {
+    const eventId = parseInt(req.params.id);
+    const userId = req.user.userId;
+    const { title, description, categoryId, location, startTime, endTime } = req.body;
+    
+    console.log(`Update event request received: User ${userId} for Event ${eventId}`);
+    
+    // Check if event exists
+    const event = await prisma.event.findUnique({
+      where: { id: eventId }
+    });
+    
+    if (!event) {
+      console.log(`Event ${eventId} not found`);
+      return res.status(404).json({ error: 'Event not found' });
+    }
+    
+    // Check if user is the creator of the event
+    if (event.userId !== userId) {
+      console.log(`User ${userId} is not the creator of event ${eventId}, cannot update`);
+      return res.status(403).json({ error: 'You can only update events you created' });
+    }
+    
+    // Update the event with only the fields that were provided
+    const updateData = {};
+    
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (categoryId !== undefined) updateData.categoryId = parseInt(categoryId);
+    if (location !== undefined) updateData.location = location;
+    if (startTime !== undefined) updateData.startTime = new Date(startTime);
+    if (endTime !== undefined) updateData.endTime = new Date(endTime);
+    
+    // Add the updatedAt timestamp
+    updateData.updatedAt = new Date();
+    
+    // Update the event
+    const updatedEvent = await prisma.event.update({
+      where: { id: eventId },
+      data: updateData,
+      include: {
+        category: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true
+          }
+        }
+      }
+    });
+    
+    console.log(`Event ${eventId} successfully updated`);
+    return res.status(200).json(updatedEvent);
+  } catch (error) {
+    console.error('Update event error:', error);
+    return res.status(500).json({ error: 'Failed to update event: ' + error.message });
+  }
+});
+
+// Delete an event (creator only)
+router.delete("/events/:id", requireAuth, async (req, res) => {
+  try {
+    const eventId = parseInt(req.params.id);
+    const userId = req.user.userId;
+    
+    console.log(`Delete event request received: User ${userId} for Event ${eventId}`);
+    
+    // Check if event exists
+    const event = await prisma.event.findUnique({
+      where: { id: eventId }
+    });
+    
+    if (!event) {
+      console.log(`Event ${eventId} not found`);
+      return res.status(404).json({ error: 'Event not found' });
+    }
+    
+    // Check if user is the creator of the event
+    if (event.userId !== userId) {
+      console.log(`User ${userId} is not the creator of event ${eventId}, cannot delete`);
+      return res.status(403).json({ error: 'You can only delete events you created' });
+    }
+    
+    // Delete all RSVPs for this event first
+    await prisma.eventRsvp.deleteMany({
+      where: { eventId: eventId }
+    });
+    console.log(`Deleted RSVPs for event ${eventId}`);
+    
+    // Delete the event
+    await prisma.event.delete({
+      where: { id: eventId }
+    });
+    
+    console.log(`Event ${eventId} successfully deleted`);
+    return res.status(200).json({ message: 'Event deleted successfully' });
+  } catch (error) {
+    console.error('Delete event error:', error);
+    return res.status(500).json({ error: 'Failed to delete event: ' + error.message });
+  }
+});
+
 export default router;
