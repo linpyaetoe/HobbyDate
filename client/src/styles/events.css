@@ -105,3 +105,110 @@ body, input, button, textarea, select {
 .events-button:hover {
   transform: scale(1.03);
 }
+
+/* container background */
+.event-details-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fcd57c 0%, #ff914d 100%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 50px 20px;
+}
+
+/* card wrapper */
+.event-details-card {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 30px 40px 40px 40px;
+  width: fit-content;
+  max-width: 1000px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  color: #000;
+  display: block; 
+  margin: 0 auto;
+}
+
+/* column layout */
+.event-grid {
+  display: grid;
+  gap: 40px;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+}
+
+/* title */
+.event-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 0px;
+  margin-bottom: 10px;
+}
+
+.event-subtitle {
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin-top: 0px;
+  margin-bottom: 5px;
+}
+
+.event-host,
+.event-time,
+.event-location,
+.event-category {
+  font-size: 1.2rem;
+  margin: 10px 0;
+}
+
+/* attendee avatars FOR LATER USE */
+.avatars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  color: #333;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* RSVP button */
+.rsvp-button {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: #c51717;
+  color: #ffffff;
+  margin-bottom: 30px;
+  transition: all 0.2s ease-in-out;
+}
+
+.rsvp-button:hover {
+  transform: scale(1.05);
+}
+
+/* event description box */
+.event-description-box {
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 20px;
+  border-radius: 15px;
+}
+
+.event-description {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-top: 0px;
+  margin-bottom: 5px;
+}

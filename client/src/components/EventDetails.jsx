@@ -80,73 +80,59 @@ export default function EventDetails() {
   const isCreator = user && parseInt(user.id) === event.userId;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        padding: "60px 20px",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "#f9f9f9",
-          border: "1px solid #ccc",
-          borderRadius: "12px",
-          padding: "40px",
-          maxWidth: "700px",
-          width: "100%",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-          textAlign: "left",
-        }}
-      >
-        <h2 style={{ marginBottom: "20px", textAlign: "center" }}>{event.title}</h2>
-        
-        <div style={{ marginBottom: "20px" }}>
-          <p>Description: {event.description}</p>
-          <p>Category: {event.category.name}</p>
-          <p>Created by: {event.user.username}</p>
-        </div>
-
-        {user && !isCreator && (
-          <div style={{ marginTop: "20px", textAlign: "center" }}>
-            <button
-              onClick={handleRsvp}
-              disabled={loading}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: isRsvpd ? "#ff4d4d" : "#4caf50", 
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: loading ? "not-allowed" : "pointer",
-                opacity: loading ? 0.7 : 1,
-              }}
-            >
-              {loading ? "Processing..." : isRsvpd ? "Cancel RSVP" : "RSVP to Event"}
-            </button>
+    <div className="event-details-wrapper">
+      <div className="event-details-card">
+        <div className="event-grid">
+          
+          {/* left section: host info, time, location */}
+          <div className="event-left">
+            <h2 className="event-heading">{event.title}</h2>
+            <p className="event-host">👤 Hosted by {event.user.username}</p>
+            <p className="event-time">📅 {new Date(event.startTime).toLocaleString()} – {new Date(event.endTime).toLocaleString()}</p>
+            <p className="event-location">📍 {event.location}</p>
+            <p className="event-category">🏷️ {event.category.name}</p>
           </div>
-        )}
-
-        {isCreator && (
-          <p style={{ marginTop: "20px", textAlign: "center", fontStyle: "italic" }}>
-            You can't RSVP to your own event.
-          </p>
-        )}
-
-        {/* RSVP List */}
-        <div style={{ marginTop: "30px" }}>
-          <h3>Attendees ({rsvpList.length})</h3>
-          {rsvpList.length > 0 ? (
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              {rsvpList.map(rsvp => (
-                <li key={rsvp.id} style={{ padding: "8px 0", borderBottom: "1px solid #eee" }}>
-                  {rsvp.username}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p style={{ fontStyle: "italic" }}>No RSVPs yet. Be the first to join!</p>
-          )}
+  
+          {/* right section: attendees, RSVP button, description */}
+          <div className="event-right">
+            <div className="attendee-list">
+              <p className="event-subtitle">Attendees ({rsvpList.length}):</p>
+              {rsvpList.length > 0 ? (
+                <ul className="attendee-ul">
+                  {rsvpList.map((rsvp) => (
+                    <li key={rsvp.id} className="attendee-item">
+                      {rsvp.username}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="no-rsvp">**add avatars of the attendees here**</p>
+              )}
+            </div>
+  
+            {!isCreator && user && (
+              <button
+                className={`rsvp-button ${isRsvpd ? "cancel" : "join"}`}
+                onClick={handleRsvp}
+                disabled={loading}
+              >
+                {loading
+                  ? "Processing..."
+                  : isRsvpd
+                  ? "Cancel RSVP"
+                  : "RSVP to Event"}
+              </button>
+            )}
+  
+            {isCreator && (
+              <p className="event-note">You can't RSVP to your own event NOTE TO CHANGE TO GREY BOX.</p>
+            )}
+  
+            <div className="event-description-box">
+              <p className="event-subtitle">Details</p>
+              <p className="event-description">{event.description}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
