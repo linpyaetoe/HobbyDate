@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import authRouter from "./routes/auth.js";
 import eventsRouter from "./routes/events.js";
 import usersRouter from "./routes/users.js";
+import locationsRouter from "./routes/locations.js";
 import cors from "cors";
 import * as dotenv from "dotenv";
 
@@ -29,6 +30,7 @@ app.use(cookieParser());
 app.use(authRouter);
 app.use(eventsRouter);
 app.use('/users', usersRouter); // Mount users router with /users prefix
+app.use('/locations', locationsRouter); // Mount locations router with /locations prefix
 
 // Log registered routes
 console.log('API Routes registered:');

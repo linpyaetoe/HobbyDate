@@ -36,7 +36,7 @@ router.get("/events", async (req, res) => {
 // Create event (authenticated)
 router.post("/events", requireAuth, async (req, res) => {
   try {
-    const { title, description, categoryId } = req.body;
+    const { title, description, categoryId, location, startTime, endTime } = req.body;
     
     if (!title || !description || !categoryId) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -51,11 +51,18 @@ router.post("/events", requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Category not found' });
     }
     
+    // Process dates
+    let startTimeDate = startTime ? new Date(startTime) : null;
+    let endTimeDate = endTime ? new Date(endTime) : null;
+    
     // Create the event
     const newEvent = await prisma.event.create({
       data: {
         title,
         description,
+        location,
+        startTime: startTimeDate,
+        endTime: endTimeDate,
         userId: req.user.userId,
         categoryId: parseInt(categoryId)
       }

@@ -1,0 +1,45 @@
+.location-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.location-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.location-suggestion-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f2f2f2;
+  transition: background-color 0.2s;
+}
+
+.location-suggestion-item:hover {
+  background-color: #f7f7f7;
+}
+
+.location-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.location-loading {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: #888;
+} 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../security/fetchWithAuth";
+import LocationInput from "./LocationInput";
 import "../styles/events.css";
 
 export default function CreateEvents() {
@@ -29,10 +30,15 @@ export default function CreateEvents() {
       });
   }, []);
 
-    // updates form field
-    const handleChange = (e) => {
-      setForm({ ...form, [e.target.name]: e.target.value });
-    };
+  // updates form field
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // handle location change from LocationInput component
+  const handleLocationChange = (location) => {
+    setForm({ ...form, location });
+  };
 
   // click create event --> navigates to events page
   const handleSubmit = async (e) => {
@@ -142,14 +148,12 @@ export default function CreateEvents() {
             </select>
           </div>
           
-          {/* location section */}
+          {/* location section - now uses our new LocationInput component */}
           <div className="form-group">
             <label className="form-label">Location</label>
-            <input
-              className="form-input"
-              name="location"
+            <LocationInput
               value={form.location}
-              onChange={handleChange}
+              onChange={handleLocationChange}
               placeholder="Where's the magic happening?"
             />
           </div>

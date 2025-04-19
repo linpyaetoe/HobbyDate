@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../security/fetchWithAuth";
+import LocationInput from "./LocationInput";
 import "../styles/profile.css";
 
 // list of hobbies for dropdown
@@ -63,6 +64,11 @@ export default function ProfileSetup() {
     setSuggestions(filtered.slice(0, 8));
   };
 
+  // handle location change from LocationInput
+  const handleLocationChange = (newLocation) => {
+    setLocation(newLocation);
+  };
+
   const addHobby = (hobby) => {
     setSelectedHobbies([...selectedHobbies, hobby]);
     setHobbyInput("");
@@ -117,13 +123,13 @@ export default function ProfileSetup() {
             className="profile-input"
           />
 
-          <input
-            type="text"
-            placeholder="location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="profile-input"
-          />
+          <div className="profile-location-input">
+            <LocationInput
+              value={location}
+              onChange={handleLocationChange}
+              placeholder="location"
+            />
+          </div>
 
           <div className="hobby-container" ref={suggestionsRef}>
             <input
