@@ -72,23 +72,21 @@ export default function EventDetails() {
   useEffect(() => {
     if (!user || !id) return;
 
-    // Check if current user is RSVP'd
-    api.get(`/${id}/rsvp`)
-      .then(res => {
-        setIsRsvpd(res.data.isRsvpd);
-      })
-      .catch(err => {
-        console.error("Failed to check RSVP status:", err);
-      });
+    const fetchRsvpData = async () => {
+      try {
+        // Check if current user is RSVP'd
+        const rsvpStatusResponse = await api.get(`/${id}/rsvp`);
+        setIsRsvpd(rsvpStatusResponse.data.isRsvpd);
 
-    // Get list of RSVPs for this event
-    api.get(`/${id}/rsvps`)
-      .then(res => {
-        setRsvpList(res.data);
-      })
-      .catch(err => {
-        console.error("Failed to fetch RSVPs:", err);
-      });
+        // Get list of RSVPs for this event
+        const rsvpsResponse = await api.get(`/${id}/rsvps`);
+        setRsvpList(rsvpsResponse.data);
+      } catch (err) {
+        console.error("Failed to fetch RSVP data:", err);
+      }
+    };
+
+    fetchRsvpData();
   }, [id, user]);
 
   // Handle saving changes for a field
@@ -157,8 +155,10 @@ export default function EventDetails() {
         // Cancel RSVP
         await api.delete(`/${id}/rsvp`);
         setIsRsvpd(false);
-        // Remove user from RSVP list
-        setRsvpList(rsvpList.filter(rsvp => rsvp.userId !== user.id));
+        
+        // Fetch the updated RSVP list instead of filtering locally
+        const updatedRsvps = await api.get(`/${id}/rsvps`);
+        setRsvpList(updatedRsvps.data);
       } else {
         // Create RSVP
         await api.post(`/${id}/rsvp`);

@@ -27,11 +27,19 @@ router.get("/events", async (req, res) => {
       }
     });
 
-    // get attendees count
-    const eventsWithCounts = events.map(event => ({
-      ...event,
-      attendees: event.rsvps.length
-    }));  
+    // get attendees count (including the host/creator)
+    const eventsWithCounts = events.map(event => {
+      // Check if creator is already in RSVPs
+      const creatorInRsvps = event.rsvps.some(rsvp => rsvp.userId === event.userId);
+      
+      // If creator is not in RSVPs, add 1 to count, otherwise just use the RSVPs length
+      const attendeeCount = creatorInRsvps ? event.rsvps.length : event.rsvps.length + 1;
+      
+      return {
+        ...event,
+        attendees: attendeeCount
+      };
+    });  
 
     return res.json(eventsWithCounts);
   } catch (error) {
@@ -195,7 +203,7 @@ router.get('/:id/rsvp', requireAuth, async (req, res) => {
 router.delete('/:id/rsvp', requireAuth, async (req, res) => {
   try {
     const eventId = parseInt(req.params.id);
-    const userId = req.user.id;
+    const userId = req.user.userId;
     
     console.log(`User ${userId} attempting to delete RSVP for event ${eventId}`);
 
