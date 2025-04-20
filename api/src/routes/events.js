@@ -22,11 +22,18 @@ router.get("/events", async (req, res) => {
             username: true,
             email: true
           }
-        }
+        },
+        rsvps: true
       }
     });
-    
-    return res.json(events);
+
+    // get attendees count
+    const eventsWithCounts = events.map(event => ({
+      ...event,
+      attendees: event.rsvps.length
+    }));  
+
+    return res.json(eventsWithCounts);
   } catch (error) {
     console.error('Error fetching events:', error);
     return res.status(500).json({ error: 'Failed to fetch events' });
@@ -66,6 +73,14 @@ router.post("/events", requireAuth, async (req, res) => {
         userId: req.user.userId,
         categoryId: parseInt(categoryId)
       }
+    });
+
+    // Automatically RSVP the creator
+    await prisma.eventRsvp.create({
+      data: {
+        userId: req.user.userId,
+        eventId: newEvent.id,
+      },
     });
     
     return res.status(201).json(newEvent);

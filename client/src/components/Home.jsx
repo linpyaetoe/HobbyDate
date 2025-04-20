@@ -7,10 +7,9 @@ export default function Home() {
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
 
+  // get all events
   useEffect(() => {
-    api.get("/events")
-      .then((res) => setEvents(res.data))
-      .catch((err) => console.error("Failed to fetch events:", err));
+    api.get("/events").then((res) => setEvents(res.data));
   }, []);
 
   const handleUnauthClick = () => {
@@ -42,7 +41,7 @@ export default function Home() {
           >
             <h3 className="event-title">{event.title}</h3>
             <p className="event-info">📍 {event.location || "Location TBD"}</p>
-            <p className="event-info">👥 {event.attendees?.length || 0} attending</p>
+            <p className="event-info">👥 {event.attendees} attending</p>
           </div>
         ))}
       </div>

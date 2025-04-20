@@ -212,11 +212,27 @@ export default function EventDetails() {
     return category ? category.name : "Unknown category";
   };
 
+  const displayedAttendees = (() => {
+    if (!event) return rsvpList;
+    const isCreatorIncluded = rsvpList.some(r => r.userId === event.userId);
+    if (!isCreatorIncluded) {
+      return [
+        ...rsvpList,
+        {
+          id: `creator-${event.userId}`,
+          userId: event.userId,
+          username: event.user?.username || "Host"
+        }
+      ];
+    }
+    return rsvpList;
+  })();
+
   return (
     <div className="event-details-wrapper">
       <div className="event-details-card">
         <div className="event-grid">
-          
+  
           {/* left section: host info, time, location */}
           <div className="event-left">
             {isEditingTitle ? (
@@ -234,18 +250,15 @@ export default function EventDetails() {
               <h2 className="event-heading">
                 {event.title}
                 {isCreator && (
-                  <button 
-                    className="mini-edit-btn" 
-                    onClick={() => setIsEditingTitle(true)}
-                  >
+                  <button className="mini-edit-btn" onClick={() => setIsEditingTitle(true)}>
                     ✏️
                   </button>
                 )}
               </h2>
             )}
-            
+  
             <p className="event-host">👤 Hosted by {event.user.username}</p>
-            
+  
             {isEditingTime ? (
               <div className="edit-container time-edit">
                 <div className="time-inputs">
@@ -276,16 +289,13 @@ export default function EventDetails() {
               <p className="event-time">
                 📅 {new Date(event.startTime).toLocaleString()} – {new Date(event.endTime).toLocaleString()}
                 {isCreator && (
-                  <button 
-                    className="mini-edit-btn" 
-                    onClick={() => setIsEditingTime(true)}
-                  >
+                  <button className="mini-edit-btn" onClick={() => setIsEditingTime(true)}>
                     ✏️
                   </button>
                 )}
               </p>
             )}
-            
+  
             {isEditingLocation ? (
               <div className="edit-container">
                 <LocationInput
@@ -301,16 +311,13 @@ export default function EventDetails() {
               <p className="event-location">
                 📍 {event.location}
                 {isCreator && (
-                  <button 
-                    className="mini-edit-btn" 
-                    onClick={() => setIsEditingLocation(true)}
-                  >
+                  <button className="mini-edit-btn" onClick={() => setIsEditingLocation(true)}>
                     ✏️
                   </button>
                 )}
               </p>
             )}
-            
+  
             {isEditingCategory ? (
               <div className="edit-container">
                 <select
@@ -330,12 +337,9 @@ export default function EventDetails() {
               </div>
             ) : (
               <p className="event-category">
-                🏷️ {getCategoryName()}
+                📋 {getCategoryName()}
                 {isCreator && (
-                  <button 
-                    className="mini-edit-btn" 
-                    onClick={() => setIsEditingCategory(true)}
-                  >
+                  <button className="mini-edit-btn" onClick={() => setIsEditingCategory(true)}>
                     ✏️
                   </button>
                 )}
@@ -346,10 +350,10 @@ export default function EventDetails() {
           {/* right section: attendees, RSVP button, description */}
           <div className="event-right">
             <div className="attendee-list">
-              <p className="event-subtitle">Attendees ({rsvpList.length}):</p>
-              {rsvpList.length > 0 ? (
+              <p className="event-subtitle">Attendees ({displayedAttendees.length}):</p>
+              {displayedAttendees.length > 0 ? (
                 <ul className="attendee-ul">
-                  {rsvpList.map((rsvp) => (
+                  {displayedAttendees.map((rsvp) => (
                     <li key={rsvp.id} className="attendee-item">
                       {rsvp.username}
                     </li>
@@ -374,34 +378,19 @@ export default function EventDetails() {
               </button>
             )}
   
-            {isCreator && (
-              <div className="creator-actions">
-                <p className="event-note">You can't RSVP to your own event!</p>
-                <div className="creator-buttons">
-                  <button
-                    className="delete-button"
-                    onClick={handleDeleteEvent}
-                    disabled={deleteLoading}
-                  >
-                    {deleteLoading ? "Deleting..." : "Delete Event"}
-                  </button>
-                </div>
-              </div>
-            )}
-  
             <div className="event-description-box">
               <div className="description-header">
                 <p className="event-subtitle">Details</p>
                 {isCreator && (
-                  <button 
-                    className="mini-edit-btn" 
+                  <button
+                    className="mini-edit-btn"
                     onClick={() => setIsEditingDescription(true)}
                   >
                     ✏️
                   </button>
                 )}
               </div>
-              
+  
               {isEditingDescription ? (
                 <div className="edit-container">
                   <textarea
@@ -409,7 +398,10 @@ export default function EventDetails() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
-                  <button className="save-btn" onClick={() => handleSaveField("description")}>
+                  <button
+                    className="save-btn"
+                    onClick={() => handleSaveField("description")}
+                  >
                     Save
                   </button>
                 </div>
@@ -417,6 +409,19 @@ export default function EventDetails() {
                 <p className="event-description">{event.description}</p>
               )}
             </div>
+  
+            {/* delete event button at the very bottom */}
+            {isCreator && (
+              <div className="creator-buttons" style={{ marginTop: "24px" }}>
+                <button
+                  className="delete-button"
+                  onClick={handleDeleteEvent}
+                  disabled={deleteLoading}
+                >
+                  {deleteLoading ? "Deleting..." : "Delete Event"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -161,25 +161,21 @@ body, input, button, textarea, select {
   margin: 10px 0;
 }
 
-/* attendee avatars FOR LATER USE */
-.avatars {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+/* attendee List */
+.attendee-list {
   margin-bottom: 20px;
 }
 
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #fff;
-  color: #333;
-  font-weight: 600;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+.attendee-ul {
+  list-style-type: disc;
+  padding-left: 40px;
+  margin-top: 8px;
+}
+
+.attendee-item {
+  font-size: 1.2rem;
+  color: #000000;
+  padding: 2px 0;
 }
 
 /* RSVP button */

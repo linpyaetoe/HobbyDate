@@ -19,7 +19,7 @@ export default function Events() {
           <Link to={`/events/${event.id}`} key={event.id} className="event-glass-card">
             <h3 className="event-title">{event.title}</h3>
             <p className="event-info">📍 {event.location || "Location TBD"}</p>
-            <p className="event-info">👥 {event.attendees?.length || 0} attending</p>
+            <p className="event-info">👥 {event.attendees} attending</p>
           </Link>
         ))}
       </div>
