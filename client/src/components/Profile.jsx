@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../security/fetchWithAuth";
+import LocationInput from "./LocationInput";
 import "../styles/global.css";
 
 // list of hobbies for dropdown
@@ -124,7 +125,7 @@ export default function Profile() {
   };
 
   useEffect(() => {
-    api.get("/my-events")
+    api.get("/events/my-events")
       .then(res => {
         setPastEvents(res.data.past);
         setUpcomingEvents(res.data.upcoming);
@@ -137,7 +138,7 @@ export default function Profile() {
       <div className="profile-grid">
 
         {/* name and location section */}
-        <div className="card">
+        <div className={`card ${isEditingLocation ? 'active' : ''}`}>
           <button className="edit-btn" onClick={() => {
             isEditingLocation ? handleSaveField("location") : setIsEditingLocation(true);
           }}>
@@ -145,11 +146,13 @@ export default function Profile() {
           </button>
           <p className="card-title">{user?.username || ""}</p>
           {isEditingLocation ? (
-            <input
-              className="card-input"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
+            <div className="location-wrapper" style={{ position: 'relative', zIndex: 9999 }}>
+              <LocationInput
+                value={location}
+                onChange={setLocation}
+                placeholder="Enter your location"
+              />
+            </div>
           ) : (
             <p className="card-content">
               {location ? "📍 " + location : "📍 Somewhere out there..."}
