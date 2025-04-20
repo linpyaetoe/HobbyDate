@@ -283,6 +283,41 @@ router.get('/:id/rsvps', async (req, res) => {
   }
 });
 
+// Get events the user RSVP'd to
+router.get("/my-events", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const now = new Date();
+
+    // events user RSVPed to
+    const rsvpedEvents = await prisma.event.findMany({
+      where: {
+        rsvps: {
+          some: {
+            userId: userId
+          }
+        }
+      },
+      include: {
+        category: true,
+        user: true
+      }
+    });
+
+    // filter past & upcoming based on time
+    const pastEvents = rsvpedEvents.filter(event => event.endTime && new Date(event.endTime) < now);
+    const upcomingEvents = rsvpedEvents.filter(event => event.endTime && new Date(event.endTime) >= now);
+
+    res.json({
+      past: pastEvents,
+      upcoming: upcomingEvents
+    });
+  } catch (error) {
+    console.error("Error fetching my events:", error);
+    res.status(500).json({ error: "Failed to fetch your events" });
+  }
+});
+
 // Update an event (creator only)
 router.put("/events/:id", requireAuth, async (req, res) => {
   try {

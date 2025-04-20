@@ -170,3 +170,14 @@ body, input, button, textarea {
   outline: none;
   border-color: #ff8c00;
 }
+
+.clickable-event {
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.clickable-event:hover {
+  color: #f08a24;
+}

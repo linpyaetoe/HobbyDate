@@ -13,6 +13,7 @@ export default function EventDetails() {
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const { user } = useContext(AuthContext);
+  const isPastEvent = event && new Date(event.endTime) < new Date();
   
   // Edit state management
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -233,7 +234,7 @@ export default function EventDetails() {
       <div className="event-details-card">
         <div className="event-grid">
   
-          {/* left section: host info, time, location */}
+          {/* title section */}
           <div className="event-left">
             {isEditingTitle ? (
               <div className="edit-container">
@@ -256,9 +257,40 @@ export default function EventDetails() {
                 )}
               </h2>
             )}
-  
+
+            {/* hosted by section */}
             <p className="event-host">👤 Hosted by {event.user.username}</p>
-  
+            
+            {/* event category section */}
+            {isEditingCategory ? (
+              <div className="edit-container">
+                <select
+                  className="edit-select"
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                >
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                <button className="save-btn" onClick={() => handleSaveField("category")}>
+                  Save
+                </button>
+              </div>
+            ) : (
+              <p className="event-category">
+                📋 {getCategoryName()}
+                {isCreator && (
+                  <button className="mini-edit-btn" onClick={() => setIsEditingCategory(true)}>
+                    ✏️
+                  </button>
+                )}
+              </p>
+            )}
+            
+            {/* event time section */}
             {isEditingTime ? (
               <div className="edit-container time-edit">
                 <div className="time-inputs">
@@ -295,7 +327,8 @@ export default function EventDetails() {
                 )}
               </p>
             )}
-  
+            
+            {/* event location section */}
             {isEditingLocation ? (
               <div className="edit-container">
                 <LocationInput
@@ -318,36 +351,9 @@ export default function EventDetails() {
               </p>
             )}
   
-            {isEditingCategory ? (
-              <div className="edit-container">
-                <select
-                  className="edit-select"
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                >
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-                <button className="save-btn" onClick={() => handleSaveField("category")}>
-                  Save
-                </button>
-              </div>
-            ) : (
-              <p className="event-category">
-                📋 {getCategoryName()}
-                {isCreator && (
-                  <button className="mini-edit-btn" onClick={() => setIsEditingCategory(true)}>
-                    ✏️
-                  </button>
-                )}
-              </p>
-            )}
           </div>
   
-          {/* right section: attendees, RSVP button, description */}
+          {/* attendees section */}
           <div className="event-right">
             <div className="attendee-list">
               <p className="event-subtitle">Attendees ({displayedAttendees.length}):</p>
@@ -363,8 +369,9 @@ export default function EventDetails() {
                 <p className="no-rsvp">**add avatars of the attendees here**</p>
               )}
             </div>
-  
-            {!isCreator && user && (
+            
+            {/* rsvp section */}
+            {!isCreator && user && !isPastEvent && (
               <button
                 className={`rsvp-button ${isRsvpd ? "cancel" : "join"}`}
                 onClick={handleRsvp}
@@ -378,6 +385,7 @@ export default function EventDetails() {
               </button>
             )}
   
+            {/* event details section */}
             <div className="event-description-box">
               <div className="description-header">
                 <p className="event-subtitle">Details</p>
@@ -410,7 +418,7 @@ export default function EventDetails() {
               )}
             </div>
   
-            {/* delete event button at the very bottom */}
+            {/* delete event section */}
             {isCreator && (
               <div className="creator-buttons" style={{ marginTop: "24px" }}>
                 <button

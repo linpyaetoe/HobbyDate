@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../security/fetchWithAuth";
 import "../styles/global.css";
 
@@ -28,6 +29,7 @@ const HOBBIES = [
 
 export default function Profile() {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   // for editing toggles
   const [isEditingLocation, setIsEditingLocation] = useState(false);
@@ -40,6 +42,8 @@ export default function Profile() {
   const [hobbyInput, setHobbyInput] = useState("");
   const [hobbySuggestions, setHobbySuggestions] = useState([]);
   const [hobbies, setHobbies] = useState([]);
+  const [pastEvents, setPastEvents] = useState([]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
 
   const suggestionsRef = useRef(null);
 
@@ -118,6 +122,15 @@ export default function Profile() {
   const removeHobby = (hobbyToRemove) => {
     setHobbies(hobbies.filter((hobby) => hobby !== hobbyToRemove));
   };
+
+  useEffect(() => {
+    api.get("/my-events")
+      .then(res => {
+        setPastEvents(res.data.past);
+        setUpcomingEvents(res.data.upcoming);
+      })
+      .catch(err => console.error("Failed to load events:", err));
+  }, []);
 
   return (
     <div className="page-wrapper">
@@ -215,14 +228,43 @@ export default function Profile() {
         {/* past events */}
         <div className="card">
           <p className="card-title">Past Events</p>
-          <p className="card-content">You haven't attended any events yet.</p>
+          {pastEvents.length > 0 ? (
+            <ul className="card-content">
+              {pastEvents.map(event => (
+                <li
+                  key={event.id}
+                  className="clickable-event"
+                  onClick={() => navigate(`/events/${event.id}`)}
+                >
+                  {event.title}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="card-content">You haven't attended any events yet.</p>
+          )}
         </div>
 
         {/* upcoming events */}
         <div className="card">
-          <p className="card-title">Upcoming Events</p>
+        <p className="card-title">Upcoming Events</p>
+        {upcomingEvents.length > 0 ? (
+          <ul className="card-content">
+            {upcomingEvents.map(event => (
+              <li
+                key={event.id}
+                className="clickable-event"
+                onClick={() => navigate(`/events/${event.id}`)}
+              >
+                {event.title}
+              </li>
+            ))}
+          </ul>
+        ) : (
           <p className="card-content">You have no upcoming events.</p>
-        </div>
+        )}
+      </div>
+
       </div>
     </div>
   );
