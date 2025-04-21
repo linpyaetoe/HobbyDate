@@ -124,6 +124,7 @@ export default function Profile() {
     setHobbies(hobbies.filter((hobby) => hobby !== hobbyToRemove));
   };
 
+  // get user's past & upcoming events
   useEffect(() => {
     api.get("/events/my-events")
       .then(res => {

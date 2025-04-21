@@ -28,7 +28,7 @@ app.use(cookieParser());
 
 // Routes with correct prefixes
 app.use(authRouter);
-app.use(eventsRouter);
+app.use('/events', eventsRouter); // Mount events router with /events prefix
 app.use('/users', usersRouter); // Mount users router with /users prefix
 app.use('/locations', locationsRouter); // Mount locations router with /locations prefix
 
