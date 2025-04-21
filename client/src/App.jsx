@@ -1,14 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AppLayout from "./components/NavBar";
-import Home from "./components/Home";
-import Events from "./components/Events";
-import CreateEvents from "./components/CreateEvents";
-import EventDetails from "./components/EventDetails";
-import EditEvent from "./components/EditEvent";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import ProfileSetup from "./components/ProfileSetup";
-import Profile from "./components/Profile";
+import Home from "./pages/Home";
+import Events from "./pages/Events";
+import CreateEvents from "./pages/CreateEvents";
+import EventDetails from "./pages/EventDetails";
+import EditEvent from "./pages/EditEvent";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ProfileSetup from "./pages/ProfileSetup";
+import Profile from "./pages/Profile";
 import { AuthProvider } from "./security/AuthContext";
 import RequireAuth from "./security/RequireAuth";
 
