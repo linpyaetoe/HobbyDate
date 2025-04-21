@@ -11,7 +11,7 @@
     "prisma:migrate": "prisma migrate dev",
     "seed": "node prisma/seed.js",
     "backend": "nodemon api/src/index.js",
-    "build": "prisma generate"
+    "build": "npm install; prisma generate"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
