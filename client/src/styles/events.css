@@ -137,6 +137,13 @@ body, input, button, textarea, select {
   align-items: start;
 }
 
+@media (max-width: 768px) {
+  .event-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+}
+
 /* title */
 .event-heading {
   font-size: 2rem;
@@ -170,8 +177,6 @@ body, input, button, textarea, select {
 .event-location {
   font-size: 1.2rem;
   margin: 10px 0;
-  word-wrap: break-word;
-  word-break: break-word;
   overflow-wrap: break-word;
 }
 
@@ -219,20 +224,6 @@ body, input, button, textarea, select {
   margin-bottom: 5px;
 }
 
-/* Creator actions section */
-.creator-actions {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 30px;
-}
-
-/* Creator buttons container */
-.creator-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
 /* Edit button */
 .edit-button {
   padding: 12px 24px;
@@ -252,12 +243,13 @@ body, input, button, textarea, select {
   background-color: #d87b1d;
 }
 
-/* Delete button */
+/* delete button */
 .delete-button {
   padding: 12px 24px;
   font-size: 1.1rem;
   font-weight: 600;
   border-radius: 8px;
+  margin-top: 24px;
   border: none;
   cursor: pointer;
   background-color: #c51717;
@@ -271,7 +263,7 @@ body, input, button, textarea, select {
   background-color: #9e1414;
 }
 
-/* Event note (for creator) */
+/* event note */
 .event-note {
   background-color: rgba(255, 255, 255, 0.5);
   padding: 10px 15px;
@@ -281,13 +273,13 @@ body, input, button, textarea, select {
   margin: 0;
 }
 
-/* Inline Editing Styles */
+/* edit buttons */
 .mini-edit-btn {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 1.7rem;
-  margin-left: 8px;
+  margin-left: 10px;
   padding: 0;
   opacity: 0.7;
   transition: opacity 0.2s ease;
@@ -297,18 +289,20 @@ body, input, button, textarea, select {
   opacity: 1;
 }
 
-.edit-container {
+.edit-row {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   gap: 10px;
-  margin-bottom: 15px;
 }
 
 .description-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
+/* edit input fields */
 .edit-input, .edit-textarea, .edit-select {
   padding: 10px;
   border: 1px solid #ddd;
@@ -323,10 +317,7 @@ body, input, button, textarea, select {
   resize: vertical;
 }
 
-.time-edit {
-  width: 100%;
-}
-
+/* edit time fields */
 .time-inputs {
   display: flex;
   flex-direction: column;
@@ -339,6 +330,7 @@ body, input, button, textarea, select {
   margin-bottom: 3px;
 }
 
+/* save button */
 .save-btn {
   padding: 8px 16px;
   background-color: #f08a24;

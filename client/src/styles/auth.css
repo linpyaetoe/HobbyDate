@@ -93,6 +93,7 @@ body, input, button, h1, h2, p {
 
 .auth-button {
   padding: 12px 24px;
+  width: 120px;
   font-size: 1.1rem;
   font-weight: 600;
   border-radius: 8px;

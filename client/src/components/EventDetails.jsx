@@ -3,26 +3,29 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../security/fetchWithAuth";
 import { AuthContext } from "../security/AuthContext";
 import LocationInput from "./LocationInput";
+import "../styles/events.css";
 
 export default function EventDetails() {
+  // get event id and user info
   const { id } = useParams();
-  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+
+  // event data and rsvp states
   const [event, setEvent] = useState(null);
   const [isRsvpd, setIsRsvpd] = useState(false);
   const [rsvpList, setRsvpList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const { user } = useContext(AuthContext);
   const isPastEvent = event && new Date(event.endTime) < new Date();
   
-  // Edit state management
+  // track edited fields
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingLocation, setIsEditingLocation] = useState(false);
   const [isEditingTime, setIsEditingTime] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   
-  // Form field states
+  // form field states
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -31,24 +34,27 @@ export default function EventDetails() {
   const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState([]);
 
-  // Get specific event details
+  // setup navigation
+  const navigate = useNavigate();
+
+  // get specific event details
   useEffect(() => {
     api.get("/events").then((res) => {
       const found = res.data.find((e) => e.id === parseInt(id));
       if (found) {
         setEvent(found);
         
-        // Initialize form fields
+        // initialize form fields
         setTitle(found.title || "");
         setLocation(found.location || "");
         setDescription(found.description || "");
         setCategoryId(found.categoryId.toString() || "");
         
-        // Format dates for datetime-local input
+        // format dates
         const formatDate = (dateString) => {
           if (!dateString) return "";
           const date = new Date(dateString);
-          return date.toISOString().slice(0, 16); // Format: YYYY-MM-DDThh:mm
+          return date.toISOString().slice(0, 16); // format: YYYY-MM-DDThh:mm
         };
         
         setStartTime(formatDate(found.startTime));
@@ -57,7 +63,26 @@ export default function EventDetails() {
     });
   }, [id]);
 
-  // Fetch categories for dropdown
+  useEffect(() => {
+    async function loadEvent() {
+      try {
+        const { data } = await api.get(`/events/${id}`);
+        setEvent(data);
+        setTitle(data.title || "");
+        setLocation(data.location || "");
+        setDescription(data.description || "");
+        setCategoryId(data.categoryId?.toString() || "");
+        const fmt = d => d ? new Date(d).toISOString().slice(0,16) : "";
+        setStartTime(fmt(data.startTime));
+        setEndTime(fmt(data.endTime));
+      } catch (err) {
+        console.error("couldn't load event", err);
+      }
+    }
+    loadEvent();
+  }, [id]);
+
+  // fetch categories for dropdown
   useEffect(() => {
     api.get("/categories")
       .then((res) => {
@@ -68,17 +93,17 @@ export default function EventDetails() {
       });
   }, []);
 
-  // Check if user is RSVP'd to this event and get RSVP list
+  // check if user has rsvp’d and fetch list of rsvps
   useEffect(() => {
     if (!user || !id) return;
 
     const fetchRsvpData = async () => {
       try {
-        // Check if current user is RSVP'd
+        // check if current user is rsvp'd
         const rsvpStatusResponse = await api.get(`/${id}/rsvp`);
         setIsRsvpd(rsvpStatusResponse.data.isRsvpd);
 
-        // Get list of RSVPs for this event
+        // get list of rsvps for this event
         const rsvpsResponse = await api.get(`/${id}/rsvps`);
         setRsvpList(rsvpsResponse.data);
       } catch (err) {
@@ -89,7 +114,7 @@ export default function EventDetails() {
     fetchRsvpData();
   }, [id, user]);
 
-  // Handle saving changes for a field
+  // save changes made to any editable field
   const handleSaveField = async (field) => {
     if (!event) return;
     
@@ -108,16 +133,12 @@ export default function EventDetails() {
         case "time":
           updateData.startTime = startTime;
           updateData.endTime = endTime;
-          
-          // Validate dates
           const start = new Date(startTime);
           const end = new Date(endTime);
-          
           if (end <= start) {
             alert("End time must be after start time!");
             return;
           }
-          
           setIsEditingTime(false);
           break;
         case "description":
@@ -131,18 +152,16 @@ export default function EventDetails() {
         default:
           break;
       }
-      
-      // Make the API call to update the event
+      // api call to update the event
       const response = await api.put(`/events/${id}`, updateData);
       setEvent(response.data);
-      
     } catch (err) {
       console.error(`Failed to update ${field}:`, err);
-      alert(`Failed to update ${field}. Please try again.`);
+      alert(`Failed to update ${field}. Please try again!`);
     }
   };
 
-  // Handle RSVP button click
+  // handle rsvp or cancel rsvp
   const handleRsvp = async () => {
     if (!user) {
       alert("Please log in to RSVP");
@@ -152,67 +171,57 @@ export default function EventDetails() {
     setLoading(true);
     try {
       if (isRsvpd) {
-        // Cancel RSVP
+        // cancel rsvp & fetch the updated rsvp list
         await api.delete(`/${id}/rsvp`);
         setIsRsvpd(false);
-        
-        // Fetch the updated RSVP list instead of filtering locally
         const updatedRsvps = await api.get(`/${id}/rsvps`);
         setRsvpList(updatedRsvps.data);
       } else {
-        // Create RSVP
+        // create rsvp & refresh rsvp list
         await api.post(`/${id}/rsvp`);
         setIsRsvpd(true);
-        // Refresh RSVP list
         const rsvpsResponse = await api.get(`/${id}/rsvps`);
         setRsvpList(rsvpsResponse.data);
       }
     } catch (err) {
       console.error("RSVP action failed:", err);
-      alert(err.response?.data?.error || "Failed to update RSVP status");
+      alert(err.response?.data?.error || "Failed to update RSVP status!");
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle Delete Event button click
+  // handle event deletion
   const handleDeleteEvent = async () => {
     if (!user || !isCreator) {
-      alert("You can only delete events you created");
+      alert("You can only delete events you created!");
       return;
     }
-
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this event? This action cannot be undone."
+      "Are you sure you want to delete this event? This action cannot be undone!"
     );
-    
     if (!confirmDelete) return;
-
     setDeleteLoading(true);
     try {
       await api.delete(`/events/${id}`);
-      alert("Event deleted successfully");
-      navigate("/events"); // Redirect to events page
+      alert("Event deleted successfully!");
+      navigate("/events");
     } catch (err) {
       console.error("Delete event failed:", err);
-      alert(err.response?.data?.error || "Failed to delete event");
+      alert(err.response?.data?.error || "Failed to delete event!");
     } finally {
       setDeleteLoading(false);
     }
   };
 
-  if (!event) return <p style={{ textAlign: "center", marginTop: "60px" }}>Loading event...</p>;
-
-  // Check if user is the creator of the event
-  const isCreator = user && parseInt(user.id) === event.userId;
-
-  // Get category name
+  // gets category name
   const getCategoryName = () => {
     if (event && event.category) return event.category.name;
     const category = categories.find(c => c.id === parseInt(categoryId));
     return category ? category.name : "Unknown category";
   };
 
+  // show how many people are attending
   const displayedAttendees = (() => {
     if (!event) return rsvpList;
     const isCreatorIncluded = rsvpList.some(r => r.userId === event.userId);
@@ -229,204 +238,157 @@ export default function EventDetails() {
     return rsvpList;
   })();
 
+  // display if event page is not loading
+  if (!event) return <p style={{ textAlign: "center", marginTop: "60px" }}>Loading event, please give it a moment!</p>;
+
+  // checks if user is the creator of the event
+  const isCreator = user && parseInt(user.id) === event.userId;
+
+
   return (
     <div className="event-details-wrapper">
       <div className="event-details-card">
         <div className="event-grid">
-  
-          {/* title section */}
-          <div className="event-left">
-            {isEditingTitle ? (
-              <div className="edit-container">
-                <input
-                  className="edit-input"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-                <button className="save-btn" onClick={() => handleSaveField("title")}>
-                  Save
-                </button>
-              </div>
-            ) : (
-              <h2 className="event-heading">
-                {event.title}
-                {isCreator && (
-                  <button className="mini-edit-btn" onClick={() => setIsEditingTitle(true)}>
-                    ✏️
-                  </button>
-                )}
-              </h2>
-            )}
 
-            {/* hosted by section */}
-            <p className="event-host">👤 Hosted by {event.user.username}</p>
-            
+          <div className="event-left">
+
+            {/* event title section */}
+            <div className="edit-row">
+              {isEditingTitle ? (
+                <input className="edit-input" value={title} onChange={e => setTitle(e.target.value)}/>
+              ) : (
+                <h2 className="event-heading">{title}</h2>
+              )}
+              {isCreator && (
+                <button
+                  className="mini-edit-btn"
+                  onClick={() => isEditingTitle ? handleSaveField('title') : setIsEditingTitle(true)}
+                >
+                  {isEditingTitle ? '💾' : '✏️'}
+                </button>
+              )}
+            </div>
+
             {/* event category section */}
-            {isEditingCategory ? (
-              <div className="edit-container">
+            <div className="edit-row">
+              {isEditingCategory ? (
                 <select
                   className="edit-select"
                   value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
+                  onChange={e => setCategoryId(e.target.value)}
                 >
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
-                <button className="save-btn" onClick={() => handleSaveField("category")}>
-                  Save
-                </button>
-              </div>
-            ) : (
-              <p className="event-category">
-                📋 {getCategoryName()}
-                {isCreator && (
-                  <button className="mini-edit-btn" onClick={() => setIsEditingCategory(true)}>
-                    ✏️
-                  </button>
-                )}
-              </p>
-            )}
-            
-            {/* event time section */}
-            {isEditingTime ? (
-              <div className="edit-container time-edit">
-                <div className="time-inputs">
-                  <div>
-                    <label>Start:</label>
-                    <input
-                      type="datetime-local"
-                      className="edit-input"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label>End:</label>
-                    <input
-                      type="datetime-local"
-                      className="edit-input"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <button className="save-btn" onClick={() => handleSaveField("time")}>
-                  Save
-                </button>
-              </div>
-            ) : (
-              <p className="event-time">
-                📅 {new Date(event.startTime).toLocaleString()} – {new Date(event.endTime).toLocaleString()}
-                {isCreator && (
-                  <button className="mini-edit-btn" onClick={() => setIsEditingTime(true)}>
-                    ✏️
-                  </button>
-                )}
-              </p>
-            )}
-            
-            {/* event location section */}
-            {isEditingLocation ? (
-              <div className="edit-container">
-                <LocationInput
-                  value={location}
-                  onChange={setLocation}
-                  placeholder="Event location"
-                />
-                <button className="save-btn" onClick={() => handleSaveField("location")}>
-                  Save
-                </button>
-              </div>
-            ) : (
-              <p className="event-location">
-                📍 {event.location}
-                {isCreator && (
-                  <button className="mini-edit-btn" onClick={() => setIsEditingLocation(true)}>
-                    ✏️
-                  </button>
-                )}
-              </p>
-            )}
-  
-          </div>
-  
-          {/* attendees section */}
-          <div className="event-right">
-            <div className="attendee-list">
-              <p className="event-subtitle">Attendees ({displayedAttendees.length}):</p>
-              {displayedAttendees.length > 0 ? (
-                <ul className="attendee-ul">
-                  {displayedAttendees.map((rsvp) => (
-                    <li key={rsvp.id} className="attendee-item">
-                      {rsvp.username}
-                    </li>
-                  ))}
-                </ul>
               ) : (
-                <p className="no-rsvp">**add avatars of the attendees here**</p>
+                <p className="event-category">📋 {event.category?.name}</p>
+              )}
+              {isCreator && (
+                <button
+                  className="mini-edit-btn"
+                  onClick={() => isEditingCategory ? handleSaveField('category') : setIsEditingCategory(true)}
+                >
+                  {isEditingCategory ? '💾' : '✏️'}
+                </button>
               )}
             </div>
+
+            {/* event time section */}
+            <div className="edit-row">
+              {isEditingTime ? (
+                <div className="time-inputs">
+                  <input
+                    type="datetime-local"
+                    className="edit-input"
+                    value={startTime}
+                    onChange={e => setStartTime(e.target.value)}
+                  />
+                  <input
+                    type="datetime-local"
+                    className="edit-input"
+                    value={endTime}
+                    onChange={e => setEndTime(e.target.value)}
+                  />
+                </div>
+              ) : (
+                <p className="event-time">📅 {new Date(event.startTime).toLocaleString()} – {new Date(event.endTime).toLocaleString()}</p>
+              )}
+              {isCreator && (
+                <button
+                  className="mini-edit-btn"
+                  onClick={() => isEditingTime ? handleSaveField('time') : setIsEditingTime(true)}
+                >
+                  {isEditingTime ? '💾' : '✏️'}
+                </button>
+              )}
+            </div>
+
+            {/* event location section */}
+            <div className="edit-row">
+              {isEditingLocation ? (
+                <LocationInput value={location} onChange={setLocation} />
+              ) : (
+                <p className="event-location">📍 {location}</p>
+              )}
+              {isCreator && (
+                <button
+                  className="mini-edit-btn"
+                  onClick={() => isEditingLocation ? handleSaveField('location') : setIsEditingLocation(true)}
+                >
+                  {isEditingLocation ? '💾' : '✏️'}
+                </button>
+              )}
+            </div>
+
+            </div>
+            {/* attendee list section */}
+            <div className="event-right">
+              <div className="attendee-list">
+                <p className="event-subtitle">Attendees ({rsvpList.length})</p>
+                <ul className="attendee-ul">
+                  {rsvpList.map(r => <li key={r.id} className="attendee-item">{r.username}</li>)}
+                </ul>
+            </div>
             
-            {/* rsvp section */}
-            {!isCreator && user && !isPastEvent && (
-              <button
-                className={`rsvp-button ${isRsvpd ? "cancel" : "join"}`}
-                onClick={handleRsvp}
-                disabled={loading}
-              >
-                {loading
-                  ? "Processing..."
-                  : isRsvpd
-                  ? "Cancel RSVP"
-                  : "RSVP to Event"}
+            {/* rsvp button section */}
+            {!isCreator && !isPastEvent && (
+              <button className="rsvp-button" onClick={handleRsvp} disabled={loading}>
+                {isRsvpd ? 'Cancel RSVP' : 'RSVP to Event'}
               </button>
             )}
-  
+
             {/* event details section */}
             <div className="event-description-box">
-              <div className="description-header">
-                <p className="event-subtitle">Details</p>
+              <div className="edit-row">
+                <p className="event-subtitle">Description</p>
                 {isCreator && (
                   <button
                     className="mini-edit-btn"
-                    onClick={() => setIsEditingDescription(true)}
+                    onClick={() =>
+                      isEditingDescription
+                        ? handleSaveField("description")
+                        : setIsEditingDescription(true)
+                    }
                   >
-                    ✏️
+                    {isEditingDescription ? "💾" : "✏️"}
                   </button>
                 )}
               </div>
-  
               {isEditingDescription ? (
-                <div className="edit-container">
-                  <textarea
-                    className="edit-textarea"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
-                  <button
-                    className="save-btn"
-                    onClick={() => handleSaveField("description")}
-                  >
-                    Save
-                  </button>
-                </div>
+                <textarea
+                  className="edit-textarea"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
               ) : (
-                <p className="event-description">{event.description}</p>
+                <p className="event-description">{description}</p>
               )}
             </div>
-  
+            
             {/* delete event section */}
             {isCreator && (
-              <div className="creator-buttons" style={{ marginTop: "24px" }}>
-                <button
-                  className="delete-button"
-                  onClick={handleDeleteEvent}
-                  disabled={deleteLoading}
-                >
-                  {deleteLoading ? "Deleting..." : "Delete Event"}
+              <div className="creator-buttons">
+                <button className="delete-button" onClick={handleDeleteEvent} disabled={deleteLoading}>
+                  Delete Event
                 </button>
               </div>
             )}
@@ -436,3 +398,132 @@ export default function EventDetails() {
     </div>
   );
 }
+
+//   // reusable editable row component for editing/saving fields
+//   const EditableRow = ({ isEditing, onEdit, onSave, children }) => (
+//     <div className="edit-row">
+//       <div className="edit-left">{children}</div>
+//       {isCreator && (
+//         <button className="mini-edit-btn" onClick={isEditing ? onSave : onEdit}>
+//           {isEditing ? "💾" : "✏️"}
+//         </button>
+//       )}
+//     </div>
+//   );
+
+//   return (
+//     <div className="event-details-wrapper">
+//       <div className="event-details-card">
+//         <div className="event-grid">
+//           <div className="event-left">
+
+//             {/* event title section */}
+//             <EditableRow
+//               isEditing={isEditingTitle}
+//               onEdit={() => setIsEditingTitle(true)}
+//               onSave={() => handleSaveField("title")}
+//             >
+//               {isEditingTitle ? (
+//                 <input className="edit-input" value={title} onChange={(e) => setTitle(e.target.value)} />
+//               ) : (
+//                 <h2 className="event-heading">{title}</h2>
+//               )}
+//             </EditableRow>
+            
+//             {/* hosted by section */}
+//             <p className="event-host">👤 Hosted by {event.user.username}</p>
+
+//             {/* event category section */}
+//             <EditableRow
+//               isEditing={isEditingCategory}
+//               onEdit={() => setIsEditingCategory(true)}
+//               onSave={() => handleSaveField("category")}
+//             >
+//               {isEditingCategory ? (
+//                 <select className="edit-select" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+//                   {categories.map((cat) => (
+//                     <option key={cat.id} value={cat.id}>{cat.name}</option>
+//                   ))}
+//                 </select>
+//               ) : (
+//                 <p className="event-category">📋 {getCategoryName()}</p>
+//               )}
+//             </EditableRow>
+            
+//             {/* event time section */}
+//             <EditableRow
+//               isEditing={isEditingTime}
+//               onEdit={() => setIsEditingTime(true)}
+//               onSave={() => handleSaveField("time")}
+//             >
+//               {isEditingTime ? (
+//                 <div className="time-inputs">
+//                   <input type="datetime-local" className="edit-input" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+//                   <input type="datetime-local" className="edit-input" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+//                 </div>
+//               ) : (
+//                 <p className="event-time">📅 {new Date(event.startTime).toLocaleString()} – {new Date(event.endTime).toLocaleString()}</p>
+//               )}
+//             </EditableRow>
+            
+//             {/* event location section */}
+//             <EditableRow
+//               isEditing={isEditingLocation}
+//               onEdit={() => setIsEditingLocation(true)}
+//               onSave={() => handleSaveField("location")}
+//             >
+//               {isEditingLocation ? (
+//                 <LocationInput value={location} onChange={setLocation} />
+//               ) : (
+//                 <p className="event-location">📍 {location}</p>
+//               )}
+//             </EditableRow>
+//           </div>
+          
+//           {/* attendee list section */}
+//           <div className="event-right">
+//             <div className="attendee-list">
+//               <p className="event-subtitle">Attendees ({displayedAttendees.length}):</p>
+//               <ul className="attendee-ul">
+//                 {displayedAttendees.map(rsvp => <li key={rsvp.id} className="attendee-item">{rsvp.username}</li>)}
+//               </ul>
+//             </div>
+            
+//             {/* rsvp section */}
+//             {!isCreator && user && !isPastEvent && (
+//               <button className={`rsvp-button ${isRsvpd ? "cancel" : "join"}`} onClick={handleRsvp} disabled={loading}>
+//                 {loading ? "Processing..." : isRsvpd ? "Cancel RSVP" : "RSVP to Event"}
+//               </button>
+//             )}
+
+//             {/* event details section */}
+//             <div className="event-description-box">
+//               <div className="edit-row">
+//                 <p className="event-subtitle">Details</p>
+//                 {isCreator && (
+//                   <button className="mini-edit-btn" onClick={() => isEditingDescription ? handleSaveField("description") : setIsEditingDescription(true)}>
+//                     {isEditingDescription ? "💾" : "✏️"}
+//                   </button>
+//                 )}
+//               </div>
+//               {isEditingDescription ? (
+//                 <textarea className="edit-textarea" value={description} onChange={(e) => setDescription(e.target.value)} />
+//               ) : (
+//                 <p className="event-description">{description}</p>
+//               )}
+//             </div>
+            
+//             {/* delete event section */}
+//             {isCreator && (
+//               <div className="creator-buttons" style={{ marginTop: "24px" }}>
+//                 <button className="delete-button" onClick={handleDeleteEvent} disabled={deleteLoading}>
+//                   {deleteLoading ? "Deleting..." : "Delete Event"}
+//                 </button>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
