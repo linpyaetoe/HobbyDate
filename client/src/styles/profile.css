@@ -153,6 +153,7 @@ body, input, button, textarea {
   color: #6f4c18;
 }
 
+/* location */
 .profile-location-input {
   margin-bottom: 16px;
 }
@@ -171,6 +172,7 @@ body, input, button, textarea {
   border-color: #ff8c00;
 }
 
+/* past/upcoming events */
 .clickable-event {
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;

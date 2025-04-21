@@ -4,6 +4,7 @@ import api from "../security/fetchWithAuth";
 import "../styles/home.css";
 
 export default function Home() {
+  // store upcoming and past events
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function Home() {
       const upcoming = [];
       const past = [];
 
+      // separate events into upcoming or past based on end time
       res.data.forEach((event) => {
         const endTime = new Date(event.endTime);
         if (endTime > now) {
@@ -29,12 +31,14 @@ export default function Home() {
     });
   }, []);
 
+  // alert for unauthenticated users
   const handleUnauthClick = () => {
-    alert("Please log in to view event details.");
+    alert("Please log in to view event details!");
   };
 
   return (
     <div className="home-page-wrapper">
+      {/* intro to app section */}
       <div className="intro-card">
         <h1 className="home-title">Welcome to HobbyDate!</h1>
         <p className="home-description">
@@ -48,6 +52,7 @@ export default function Home() {
         </div>
       </div>
 
+      {/* upcoming events section */}
       <h2 className="home-title">Upcoming Events</h2>
       <div className="events-grid">
         {upcomingEvents.map((event) => (
@@ -63,7 +68,8 @@ export default function Home() {
           </div>
         ))}
       </div>
-
+      
+      {/* past events section */}
       <h2 className="home-title">Past Events</h2>
       <div className="events-grid">
         {pastEvents.map((event) => (

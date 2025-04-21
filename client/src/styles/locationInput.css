@@ -1,8 +1,10 @@
+/* location container */
 .location-input-container {
   position: relative;
   width: 100%;
 }
 
+/* location dropdown */
 .location-suggestions {
   position: absolute;
   top: 100%;
@@ -35,6 +37,7 @@
   border-bottom: none;
 }
 
+/* loading while fetching api */
 .location-loading {
   position: absolute;
   right: 10px;

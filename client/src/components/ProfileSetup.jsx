@@ -29,15 +29,15 @@ const HOBBIES = [
 ];
 
 export default function ProfileSetup() {
-  //@linpyaetoe all variables created for this page
+  // form states for profile set up
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [about, setAbout] = useState("");
-
   const [hobbyInput, setHobbyInput] = useState("");
   const [selectedHobbies, setSelectedHobbies] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
 
+  // for detecting outside the box clicks
   const suggestionsRef = useRef(null);
   const navigate = useNavigate();
 
@@ -69,12 +69,14 @@ export default function ProfileSetup() {
     setLocation(newLocation);
   };
 
+  // add hobby to list
   const addHobby = (hobby) => {
     setSelectedHobbies([...selectedHobbies, hobby]);
     setHobbyInput("");
     setSuggestions([]);
   };
 
+  // remove hobby from list
   const removeHobby = (hobbyToRemove) => {
     setSelectedHobbies(
       selectedHobbies.filter((hobby) => hobby !== hobbyToRemove)
@@ -115,6 +117,7 @@ export default function ProfileSetup() {
         <h2 className="profile-subtitle">give future buddies something to vibe with</h2>
 
         <form onSubmit={handleSubmit} className="profile-form">
+          {/* name section */}
           <input
             type="text"
             placeholder="name"
@@ -123,6 +126,7 @@ export default function ProfileSetup() {
             className="profile-input"
           />
 
+           {/* location section */}
           <div className="profile-location-input">
             <LocationInput
               value={location}
@@ -131,6 +135,7 @@ export default function ProfileSetup() {
             />
           </div>
 
+          {/* hobby section */}
           <div className="hobby-container" ref={suggestionsRef}>
             <input
               type="text"
@@ -164,7 +169,8 @@ export default function ProfileSetup() {
               ))}
             </div>
           </div>
-
+          
+          {/* about me section */}
           <textarea
             placeholder={
               "drop some fun facts about yourself\n" +
@@ -175,6 +181,7 @@ export default function ProfileSetup() {
             className="profile-textarea"
           />
 
+          {/* buttons section */}
           <div className="bottom-button-group">
             <button type="submit" className="save-button">Save profile</button>
             <button

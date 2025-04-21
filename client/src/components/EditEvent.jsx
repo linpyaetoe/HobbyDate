@@ -6,13 +6,11 @@ import { AuthContext } from "../security/AuthContext";
 import "../styles/events.css";
 
 export default function EditEvent() {
+  // get event id and user info
   const { id } = useParams();
-  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [categories, setCategories] = useState([]);
-  
+
+  // event data
   const [form, setForm] = useState({
     title: "",
     categoryId: "",
@@ -21,8 +19,13 @@ export default function EditEvent() {
     endTime: "",
     description: ""
   });
+  const [categories, setCategories] = useState([]); // for dropdown
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Fetch the event details
+  const navigate = useNavigate();
+
+  // fetch the event details
   useEffect(() => {
     const fetchEvent = async () => {
       try {
@@ -34,17 +37,17 @@ export default function EditEvent() {
           return;
         }
         
-        // Check if user is the creator
+        // check if user is the creator
         if (!user || user.id !== foundEvent.userId.toString()) {
           setError("You can only edit events you created");
           return;
         }
         
-        // Format dates for the datetime-local input
+        // format dates
         const formatDate = (dateString) => {
           if (!dateString) return "";
           const date = new Date(dateString);
-          return date.toISOString().slice(0, 16); // Format: YYYY-MM-DDThh:mm
+          return date.toISOString().slice(0, 16); // format: YYYY-MM-DDThh:mm
         };
         
         setForm({
@@ -59,14 +62,14 @@ export default function EditEvent() {
         setLoading(false);
       } catch (err) {
         console.error("Failed to fetch event details:", err);
-        setError("Failed to load event details");
+        setError("Failed to load event details!");
       }
     };
     
     fetchEvent();
   }, [id, user]);
 
-  // Fetch categories
+  // fetch categories
   useEffect(() => {
     api.get("/categories")
       .then((res) => {
@@ -77,22 +80,22 @@ export default function EditEvent() {
       });
   }, []);
 
-  // Handle form field changes
+  // handle form field changes
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Handle location change
+  // handle location change
   const handleLocationChange = (location) => {
     setForm({ ...form, location });
   };
 
-  // Handle form submission
+  // handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { title, categoryId, location, startTime, endTime, description } = form;
 
-    // Validate form fields
+    // check 1: checks for empty fields
     if (
       !title.trim() ||
       !categoryId ||
@@ -105,29 +108,29 @@ export default function EditEvent() {
       return;
     }
 
-    // Validate dates
+    // convert dates
     const start = new Date(startTime);
     const end = new Date(endTime);
     
-    // End time must be after start time
+    // check 2: end time must be after start time
     if (end <= start) {
       alert("Your event can't end before it begins!");
       return;
     }
 
-    // Validate title length
+    // check 3: title length
     if (title.length > 60) {
       alert("Your title is a bit too long — try keeping it under 60 characters!");
       return;
     }
 
-    // Validate description length
+    // check 4: description length
     if (description.length > 1000) {
       alert("Your description is a bit too long — try keeping it under 1000 characters!");
       return;
     }
 
-    // Update event
+    // update event
     try {
       await api.put(`/events/${id}`, form);
       alert("Event updated successfully!");
@@ -138,7 +141,7 @@ export default function EditEvent() {
     }
   };
 
-  // Handle cancel
+  // handle cancel
   const handleCancel = () => {
     const confirmCancel = window.confirm(
       "Are you sure you want to cancel? All unsaved changes will be lost!"

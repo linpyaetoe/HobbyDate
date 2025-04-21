@@ -29,6 +29,7 @@ const HOBBIES = [
 ];
 
 export default function Profile() {
+  // get event id and user info
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 

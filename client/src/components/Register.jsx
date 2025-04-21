@@ -6,18 +6,26 @@ import { motion } from "framer-motion";
 import "../styles/auth.css";
 
 export default function Register() {
-  const [form, setForm] = useState({ username: "", email: "", password: "" });
+  // get user info
   const { login } = useContext(AuthContext);
+
+  // form state for registering user
+  const [form, setForm] = useState({ username: "", email: "", password: "" });
+
   const navigate = useNavigate();
 
+  // handle form submit for registering
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // check for empty fields
     if (!form.username || !form.email || !form.password) {
       alert("All fields must be filled out!");
       return;
     }
 
     try {
+      // try to register
       const res = await api.post("/register", form);
       login(res.data.user);
       navigate("/profile-setup");
@@ -32,6 +40,8 @@ export default function Register() {
 
   return (
     <div className="auth-page-wrapper">
+
+      {/* title section */}
       <motion.div
         className="auth-card"
         initial={{ opacity: 0, y: 30 }}
@@ -41,6 +51,7 @@ export default function Register() {
         <h1 className="auth-title">Create your account</h1>
         <h2 className="auth-subtitle">let your hobbies do the matchmaking</h2>
 
+        {/* register info section */}
         <form onSubmit={handleSubmit} className="auth-form">
           <input
             type="text"
@@ -64,6 +75,7 @@ export default function Register() {
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
 
+          {/* buttons section */}
           <div className="auth-button-group">
             <button type="submit" className="auth-button primary">Register</button>
             <Link to="/">
@@ -72,6 +84,7 @@ export default function Register() {
           </div>
         </form>
 
+        {/* log in section */}
         <p className="auth-footer">
           Already have an account? <Link to="/login" className="auth-link">Login</Link>
         </p>

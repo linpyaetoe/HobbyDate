@@ -1,3 +1,4 @@
+/* navigation bar container */
 .navbar {
   display: flex;
   justify-content: flex-end;
@@ -8,7 +9,7 @@
   border-bottom: none;
 }
 
-
+/* button styling */
 .button {
   background: none;
   border: none;
@@ -27,4 +28,9 @@
 
 .button:hover {
   color: #ff914d;
+}
+
+/* icon spacing */
+.spacing {
+  margin-right: 8px;
 }

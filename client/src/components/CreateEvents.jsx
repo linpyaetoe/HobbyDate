@@ -5,6 +5,7 @@ import LocationInput from "./LocationInput";
 import "../styles/events.css";
 
 export default function CreateEvents() {
+  // form state for all fields
   const [form, setForm] = useState({
     title: "",
     categoryId: "",
@@ -14,7 +15,7 @@ export default function CreateEvents() {
     description: ""
   });
 
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]); // for dropdown
   const navigate = useNavigate();
 
   // get preset categories
@@ -58,7 +59,7 @@ export default function CreateEvents() {
       return;
     }
 
-    // convert to Date objects
+    // convert dates
     const start = new Date(startTime);
     const end = new Date(endTime);
     const now = new Date();

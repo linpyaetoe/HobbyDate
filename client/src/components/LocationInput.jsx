@@ -3,14 +3,17 @@ import api from '../security/fetchWithAuth';
 import '../styles/locationInput.css';
 
 const LocationInput = ({ value, onChange, placeholder }) => {
+  // store states for location api
   const [query, setQuery] = useState(value || '');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // for detecting outside the box clicks
   const suggestionsRef = useRef(null);
   const inputRef = useRef(null);
   
-  // Close suggestions when clicking outside
+  // close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -26,7 +29,7 @@ const LocationInput = ({ value, onChange, placeholder }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   
-  // Fetch location suggestions when query changes
+  // fetch location suggestions when query changes
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (query.length < 3) {
@@ -46,7 +49,7 @@ const LocationInput = ({ value, onChange, placeholder }) => {
       }
     };
     
-    // Debounce the API call
+    // debounce the API call
     const timer = setTimeout(() => {
       fetchSuggestions();
     }, 300);
@@ -57,7 +60,7 @@ const LocationInput = ({ value, onChange, placeholder }) => {
   const handleInputChange = (e) => {
     const value = e.target.value;
     setQuery(value);
-    // Also update the parent component's state
+    // also update the parent component's state
     onChange(value);
   };
   
@@ -69,6 +72,8 @@ const LocationInput = ({ value, onChange, placeholder }) => {
   
   return (
     <div className="location-input-container">
+
+      {/* location text */}
       <input
         ref={inputRef}
         type="text"
@@ -79,8 +84,10 @@ const LocationInput = ({ value, onChange, placeholder }) => {
         placeholder={placeholder || "Enter a location"}
       />
       
+      {/* loading text */}
       {loading && <div className="location-loading">Loading...</div>}
       
+      {/* list of locations text */}
       {showSuggestions && suggestions.length > 0 && (
         <ul ref={suggestionsRef} className="location-suggestions">
           {suggestions.map(suggestion => (
