@@ -126,7 +126,7 @@ export default function Profile() {
 
   // get user's past & upcoming events
   useEffect(() => {
-    api.get("/events/my-events")
+    api.get("/my-events")
       .then(res => {
         setPastEvents(res.data.past);
         setUpcomingEvents(res.data.upcoming);

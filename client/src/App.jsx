@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import AppLayout from "./components/AppLayout";
+import AppLayout from "./components/NavBar";
 import Home from "./components/Home";
 import Events from "./components/Events";
 import CreateEvents from "./components/CreateEvents";

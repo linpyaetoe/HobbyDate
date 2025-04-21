@@ -2,9 +2,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../security/AuthContext";
 import { Calendar, PlusSquare, User, LogOut } from "lucide-react"; 
-import "../styles/layout.css";
+import "../styles/navBar.css";
 
-export default function AppLayout({ children }) {
+export default function NavBar({ children }) {
   const { user, logout } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();

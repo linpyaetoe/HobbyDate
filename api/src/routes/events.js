@@ -11,7 +11,7 @@ router.get("/ping", (req, res) => {
 });
 
 // Get all events
-router.get("/", async (req, res) => {
+router.get("/events", async (req, res) => {
   try {
     const events = await prisma.event.findMany({
       include: {
