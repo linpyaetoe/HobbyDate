@@ -98,38 +98,54 @@ export default function EventDetails() {
   // save changes made to any editable field
   const handleSaveField = async (field) => {
     if (!event) return;
-    
+  
     try {
       const updateData = {};
-      
-      switch(field) {
+  
+      switch (field) {
         case "title":
+          if (!validateField("Title", title, 60)) return;
           updateData.title = title;
           setIsEditingTitle(false);
           break;
+  
         case "location":
+          if (!validateField("Location", location)) return;
           updateData.location = location;
           setIsEditingLocation(false);
           break;
+  
         case "time":
-          updateData.startTime = startTime;
-          updateData.endTime = endTime;
+          if (!startTime || !endTime) {
+            alert("Both start and end time must be filled out!");
+            return;
+          }
           const start = new Date(startTime);
           const end = new Date(endTime);
           if (end <= start) {
-            alert("End time must be after start time!");
+            alert("Your event can't end before it begins!");
             return;
           }
+          updateData.startTime = startTime;
+          updateData.endTime = endTime;
           setIsEditingTime(false);
           break;
+  
         case "description":
+          if (!validateField("Description", description, 1000)) return;
           updateData.description = description;
           setIsEditingDescription(false);
           break;
+  
         case "category":
+          if (!categoryId) {
+            alert("Please select a category!");
+            return;
+          }
           updateData.categoryId = categoryId;
           setIsEditingCategory(false);
           break;
+  
         default:
           break;
       }
@@ -142,6 +158,19 @@ export default function EventDetails() {
     }
   };
 
+  // helper method for making sure fields cannot be empty or exceed char limit
+  const validateField = (fieldName, value, maxLength = null) => {
+    if (!value || value.trim() === "") {
+      alert(`${fieldName} cannot be empty!`);
+      return false;
+    }
+    if (maxLength && value.length > maxLength) {
+      alert(`${fieldName} cannot exceed ${maxLength} characters!`);
+      return false;
+    }
+    return true;
+  };
+  
   // handle rsvp or cancel rsvp
   const handleRsvp = async () => {
     if (!user) {
