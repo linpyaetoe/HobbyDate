@@ -6,7 +6,8 @@
     "install": "cd api && npm install",
     "dev:api": "cd api && npm run dev",
     "setup": "node setup.js",
-    "backend": "nodemon api/src/index.js"
+    "backend": "nodemon api/src/index.js",
+    "build": "cd api && npm run build"
   },
   "private": true,
   "dependencies": {

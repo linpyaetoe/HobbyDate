@@ -10,7 +10,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "seed": "node prisma/seed.js",
-    "backend": "nodemon api/src/index.js"
+    "backend": "nodemon api/src/index.js",
+    "build": "prisma generate"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
