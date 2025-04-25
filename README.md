@@ -1,6 +1,6 @@
 # Hello World Final Project
 
-This project includes an API with authentication and item management functionality.
+This project includes an API with authentication and item management functionality. 
 
 ## Setup Instructions
 
@@ -33,4 +33,4 @@ This project includes an API with authentication and item management functionali
   - GET /items - Get all items
   - POST /items - Create a new item (requires authentication)
 
-See the API README.md for more detailed information. 
+See the API README.md for more detailed information.  
